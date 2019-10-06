@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="#">
+    <title>Reinforcement Learning | Ramin Tawab Résumé</title>
+    <link rel="shortcut icon" type="image/png" href="../files/favicon.ico"/>
+    <!-- I wrote this page with the help of the Bootstrap libraries -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link href="../css/album.css" rel="stylesheet">
+    <style>
+            img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            }
+            .accordion {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            }
+            button {
+            text-decoration: none !important;
+            white-space: normal !important;
+            }
+             
+             #player {
+                 margin-left: auto !important;
+                 margin-right: auto !important;
+             }
+         </style>
+    <script type="text/javascript"> 
+        function scroll(element){   
+            var ele = document.getElementById(element);   
+            window.scrollTo(ele.offsetLeft,ele.offsetTop); 
+        }
+    </script>
+  </head>
+
+  <body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../files/CV.pdf">CV</a></li>
+            <li><a href="../index.html#blog" style="cursor: pointer; color: #999;">Blog</a></li>
+            <li><a href="../index.html#portfolio" style="cursor: pointer; color: #999;">Portfolio</a></li>
+        </ul>
+    </nav>
+    
+    <main role="main">
+            <section class="jumbotron text-center">
+               <div class="container">
+                  <h1 class="jumbotron-heading">Reinforcement Learning</h1>
+                  <p class="lead text-muted">
+                     This page shows an implementation of inverse reinforcement learning. 
+                     Typically, an inverse reinforcement learning implementation also requires the solution to the forward reinforcement learning algorithm.
+                  </p>
+               </div>
+            </section>
+            <div class="album py-5">
+               <div class="container">
+                  <div>
+                     <div class="accordion" id="accordionExample">
+                        <div class="card">
+                           <div class="card-header" id="headingOne">
+                              <h5 class="mb-0">
+                                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                 Maximum entropy inverse reinforcement learning applied to single level limit order book dynamics
+                                 </button>
+                              </h5>
+                           </div>
+                           <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                <div class="card-body">
+                                        <p>
+                                        This notebook implements the results of <a href='https://arxiv.org/pdf/1906.04813.pdf'>Towards Inverse Reinforcement Learning for Limit Order Book Dynamics</a>. 
+                                        I create a maximum entropy inverse reinforcement learning algorithm, and a single level limit order book simulation. 
+                                        The IRL algorithm is run on the LOB to infer the reward function of one of the traders. 
+                                        This is first done with a linear reward and then a non-linear exponential reward.
+                                        </p>
+                                        <p>
+                                        Moving forward, I would like to rewrite the inverse reinforcement learning algorithm to work on continuous spaces.
+                                        </p>
+                                                                                
+                                    <!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">matplotlib.pyplot</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">plt</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">numpy</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">np</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">numpy.random</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">rn</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">math</span>
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">itertools</span> <span style="color: #008000; font-weight: bold">import</span> product, combinations
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">tqdm</span> <span style="color: #008000; font-weight: bold">import</span> tnrange, tqdm_notebook
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">seaborn</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">sns</span>
+</pre></div>
+<br>
+<p style="font-weight: bold; font-size: 1.2em;">Inverse reinforcement learning point estimates using the principle of Maximum Entropy</p>
+<p>
+    I write a class based on Ziebart's work on the principle of maximum entropy in the context of inverse reinforcement learning. 
+    This allows the reward function of any MDP to be inferred from a given state of trajectories. 
+    I have modified the standard method to instead directly infer the reward using Bayesian analysis.
+</p>
+
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MaxEnt</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">__init__</span>(
+        <span style="color: #008000">self</span>, 
+        feature_matrix, 
+        num_actions, 
+        transitions, 
+        trajectories<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">None</span>,
+        gamma<span style="color: #666666">=0.9</span>, 
+        eta<span style="color: #666666">=0.01</span>, 
+        epochs<span style="color: #666666">=100</span>, 
+        margin<span style="color: #666666">=1</span>e<span style="color: #666666">-2</span>,
+        horizon<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">None</span>,
+    ):
+        <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #BA2121; font-style: italic">        Maximum entropy inverse reinforcement learning class.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        feature_matrix: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            (N, D)-shaped array where N is the number of states and D is the dimensionality of the state.</span>
+<span style="color: #BA2121; font-style: italic">        num_actions: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of actions.</span>
+<span style="color: #BA2121; font-style: italic">        transitions: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            (N, A, N)-shaped array mapping (state_i, action, state_k) to the probability of transitioning </span>
+<span style="color: #BA2121; font-style: italic">            from state_i to state_k under action.</span>
+<span style="color: #BA2121; font-style: italic">        trajectories: np.ndarray, default: None</span>
+<span style="color: #BA2121; font-style: italic">            (T, L, 2)-shaped array where T is the number of trajectories and L is the trajectory length.</span>
+<span style="color: #BA2121; font-style: italic">            Contains state/action pairs. States are ints, actions are ints.</span>
+<span style="color: #BA2121; font-style: italic">        gamma: float, default: 0.9</span>
+<span style="color: #BA2121; font-style: italic">            Discount factor of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        eta: float, default: 0.01</span>
+<span style="color: #BA2121; font-style: italic">            Gradient descent learning rate.</span>
+<span style="color: #BA2121; font-style: italic">        epochs: int, default: 100</span>
+<span style="color: #BA2121; font-style: italic">            Number of gradient descent steps.</span>
+<span style="color: #BA2121; font-style: italic">        margin: float, default: 1d-2</span>
+<span style="color: #BA2121; font-style: italic">            threshold for forward reinforcement learning.</span>
+<span style="color: #BA2121; font-style: italic">        horizon: int, default: None</span>
+<span style="color: #BA2121; font-style: italic">            Cut off time of the horizon for discounting the reward. None if infinite horizon. int if finite horizon.</span>
+<span style="color: #BA2121; font-style: italic">            </span>
+<span style="color: #BA2121; font-style: italic">        Attributes</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        feature_matrix: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Feature matrix.</span>
+<span style="color: #BA2121; font-style: italic">        num_actions: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of actions.</span>
+<span style="color: #BA2121; font-style: italic">        transitions: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Transition matrix.</span>
+<span style="color: #BA2121; font-style: italic">        trajectories: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Trajectories list.</span>
+<span style="color: #BA2121; font-style: italic">        gamma: float</span>
+<span style="color: #BA2121; font-style: italic">            Discount factor of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        eta: float</span>
+<span style="color: #BA2121; font-style: italic">            Gradient descent learning rate.</span>
+<span style="color: #BA2121; font-style: italic">        epochs: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of gradient descent steps.</span>
+<span style="color: #BA2121; font-style: italic">        margin: float</span>
+<span style="color: #BA2121; font-style: italic">            threshold for forward reinforcement learning.</span>
+<span style="color: #BA2121; font-style: italic">        horizon: int</span>
+<span style="color: #BA2121; font-style: italic">            Cut off time of the horizon for discounting the reward. None if infinite horizon. int if finite horizon.</span>
+<span style="color: #BA2121; font-style: italic">        &quot;&quot;&quot;</span>
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix <span style="color: #666666">=</span> feature_matrix
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions <span style="color: #666666">=</span> num_actions
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>transitions <span style="color: #666666">=</span> transitions
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories <span style="color: #666666">=</span> trajectories
+        
+        <span style="color: #008000; font-weight: bold">assert</span> np<span style="color: #666666">.</span>isclose(<span style="color: #008000">self</span><span style="color: #666666">.</span>transitions<span style="color: #666666">.</span>sum(axis<span style="color: #666666">=2</span>), <span style="color: #666666">1</span>)<span style="color: #666666">.</span>all()
+
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>num_states, <span style="color: #008000">self</span><span style="color: #666666">.</span>dim_states <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix<span style="color: #666666">.</span>shape
+
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>epochs <span style="color: #666666">=</span> epochs <span style="color: #408080; font-style: italic"># number of epochs for gradient descent</span>
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>eta <span style="color: #666666">=</span> eta <span style="color: #408080; font-style: italic"># learning rate for gradient descent</span>
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>gamma <span style="color: #666666">=</span> gamma <span style="color: #408080; font-style: italic"># discount factor for reinforcement learning value function</span>
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>margin <span style="color: #666666">=</span> margin <span style="color: #408080; font-style: italic"># margin for reinforcement learning</span>
+
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>horizon <span style="color: #666666">=</span> horizon
+        
+    <span style="color: #408080; font-style: italic"># forward reinforcement learning functions</span>
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">value</span>(<span style="color: #008000">self</span>, policy, reward):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Computes the value of the MDP under a given policy and reward.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        policy: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Policy of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        reward: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Reward of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Value of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        v <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)
+        
+        <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>horizon:
+            <span style="color: #008000; font-weight: bold">for</span> timestep <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>horizon):
+                <span style="color: #008000; font-weight: bold">for</span> s <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states):
+                    vs <span style="color: #666666">=</span> v[s]
+                    a <span style="color: #666666">=</span> policy[s]
+                    v[s] <span style="color: #666666">=</span> <span style="color: #008000">sum</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[s, a, k] <span style="color: #666666">*</span>
+                               (reward[k] <span style="color: #666666">+</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>gamma <span style="color: #666666">*</span> v[k])
+                               <span style="color: #008000; font-weight: bold">for</span> k <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states))
+            <span style="color: #008000; font-weight: bold">return</span> v
+                    
+        diff <span style="color: #666666">=</span> <span style="color: #008000">float</span>(<span style="color: #BA2121">&quot;inf&quot;</span>)
+        <span style="color: #008000; font-weight: bold">while</span> diff <span style="color: #666666">&gt;</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>margin:
+            diff <span style="color: #666666">=</span> <span style="color: #666666">0</span>
+            <span style="color: #008000; font-weight: bold">for</span> s <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states):
+                vs <span style="color: #666666">=</span> v[s]
+                a <span style="color: #666666">=</span> policy[s]
+                v[s] <span style="color: #666666">=</span> <span style="color: #008000">sum</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[s, a, k] <span style="color: #666666">*</span>
+                           (reward[k] <span style="color: #666666">+</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>gamma <span style="color: #666666">*</span> v[k])
+                           <span style="color: #008000; font-weight: bold">for</span> k <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states))
+                diff <span style="color: #666666">=</span> <span style="color: #008000">max</span>(diff, <span style="color: #008000">abs</span>(vs <span style="color: #666666">-</span> v[s]))
+        <span style="color: #008000; font-weight: bold">return</span> v
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">optimal_value</span>(<span style="color: #008000">self</span>, reward):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Computes the optimal value of an MDP under a given reward.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        reward: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Reward of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Optimal value of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        v <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)
+        
+        <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>horizon:
+            <span style="color: #008000; font-weight: bold">for</span> timestep <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>horizon):
+                <span style="color: #008000; font-weight: bold">for</span> s <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states):
+                    max_v <span style="color: #666666">=</span> <span style="color: #008000">float</span>(<span style="color: #BA2121">&quot;-inf&quot;</span>)
+                    <span style="color: #008000; font-weight: bold">for</span> a <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions):
+                        tp <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[s, a, :]
+                        max_v <span style="color: #666666">=</span> <span style="color: #008000">max</span>(max_v, np<span style="color: #666666">.</span>dot(tp, reward <span style="color: #666666">+</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>gamma<span style="color: #666666">*</span>v))
+                    v[s] <span style="color: #666666">=</span> max_v
+            <span style="color: #008000; font-weight: bold">return</span> v
+        
+        diff <span style="color: #666666">=</span> <span style="color: #008000">float</span>(<span style="color: #BA2121">&quot;inf&quot;</span>)
+        <span style="color: #008000; font-weight: bold">while</span> diff <span style="color: #666666">&gt;</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>margin:
+            diff <span style="color: #666666">=</span> <span style="color: #666666">0</span>
+            <span style="color: #008000; font-weight: bold">for</span> s <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states):
+                max_v <span style="color: #666666">=</span> <span style="color: #008000">float</span>(<span style="color: #BA2121">&quot;-inf&quot;</span>)
+                <span style="color: #008000; font-weight: bold">for</span> a <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions):
+                    tp <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[s, a, :]
+                    max_v <span style="color: #666666">=</span> <span style="color: #008000">max</span>(max_v, np<span style="color: #666666">.</span>dot(tp, reward <span style="color: #666666">+</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>gamma<span style="color: #666666">*</span>v))
+                new_diff <span style="color: #666666">=</span> <span style="color: #008000">abs</span>(v[s] <span style="color: #666666">-</span> max_v)
+                <span style="color: #008000; font-weight: bold">if</span> new_diff <span style="color: #666666">&gt;</span> diff:
+                    diff <span style="color: #666666">=</span> new_diff
+                v[s] <span style="color: #666666">=</span> max_v
+        <span style="color: #008000; font-weight: bold">return</span> v
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">find_policy</span>(<span style="color: #008000">self</span>, reward, v<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">None</span>, stochastic<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">True</span>):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Computes the the policy of the MDP under a given reward and value.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        reward: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Reward of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        v: np.ndarray, default: None</span>
+<span style="color: #BA2121; font-style: italic">            Value of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        stochastic: bool, default: True</span>
+<span style="color: #BA2121; font-style: italic">            Whether to compute a stochastic policy or not.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Value of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        <span style="color: #008000; font-weight: bold">if</span> v <span style="color: #AA22FF; font-weight: bold">is</span> <span style="color: #008000; font-weight: bold">None</span>:
+            v <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>optimal_value(reward)
+
+        <span style="color: #008000; font-weight: bold">if</span> stochastic:
+            <span style="color: #408080; font-style: italic"># Get Q using equation 9.2 from Ziebart&#39;s thesis.</span>
+            Q <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros((<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states, <span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions))
+            <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states):
+                <span style="color: #008000; font-weight: bold">for</span> j <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions):
+                    p <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[i, j, :]
+                    Q[i, j] <span style="color: #666666">=</span> p<span style="color: #666666">.</span>dot(reward <span style="color: #666666">+</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>gamma<span style="color: #666666">*</span>v)
+            Q <span style="color: #666666">-=</span> Q<span style="color: #666666">.</span>max(axis<span style="color: #666666">=1</span>)<span style="color: #666666">.</span>reshape((<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states, <span style="color: #666666">1</span>))  <span style="color: #408080; font-style: italic"># For numerical stability.</span>
+            Q <span style="color: #666666">=</span> np<span style="color: #666666">.</span>exp(Q)<span style="color: #666666">/</span>np<span style="color: #666666">.</span>exp(Q)<span style="color: #666666">.</span>sum(axis<span style="color: #666666">=1</span>)<span style="color: #666666">.</span>reshape((<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states, <span style="color: #666666">1</span>))
+            <span style="color: #008000; font-weight: bold">return</span> Q
+
+        <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">_policy</span>(s):
+            <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">max</span>(<span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions),
+                       key<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">lambda</span> a: <span style="color: #008000">sum</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[s, a, k] <span style="color: #666666">*</span>
+                                         (reward[k] <span style="color: #666666">+</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>gamma <span style="color: #666666">*</span> v[k])
+                                         <span style="color: #008000; font-weight: bold">for</span> k <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)))
+        policy <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array([_policy(s) <span style="color: #008000; font-weight: bold">for</span> s <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)])
+        <span style="color: #008000; font-weight: bold">return</span> policy
+    
+    <span style="color: #408080; font-style: italic"># inverse reinforcement learning functions</span>
+    
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">irl</span>(<span style="color: #008000">self</span>):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Compute the reward of the MDP with respect to provided trajectories.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Reward of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        r <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(shape<span style="color: #666666">=</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states,))
+        mu <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>find_svf()
+        <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> tnrange(<span style="color: #008000">self</span><span style="color: #666666">.</span>epochs):
+            expected_mu <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>find_expected_svf(r)
+            grad <span style="color: #666666">=</span> mu <span style="color: #666666">-</span> expected_mu
+            r <span style="color: #666666">+=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>eta <span style="color: #666666">*</span> grad
+        <span style="color: #008000; font-weight: bold">return</span> r<span style="color: #666666">.</span>reshape((<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states,))
+    
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">find_svf</span>(<span style="color: #008000">self</span>):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Compute state visitation frequencies of the given MDP with respect to provided trajectories.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            State visitation frequencies of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        svf <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)
+        <span style="color: #008000; font-weight: bold">for</span> trajectory <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories:
+            <span style="color: #008000; font-weight: bold">for</span> state, _, _ <span style="color: #AA22FF; font-weight: bold">in</span> trajectory:
+                svf[<span style="color: #008000">int</span>(state)] <span style="color: #666666">+=</span> <span style="color: #666666">1</span>
+        svf <span style="color: #666666">/=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories<span style="color: #666666">.</span>shape[<span style="color: #666666">0</span>]
+        <span style="color: #008000; font-weight: bold">return</span> svf
+    
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">find_expected_svf</span>(<span style="color: #008000">self</span>, r):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Compute expected state visitation frequencies of the given MDP under a given reward</span>
+<span style="color: #BA2121; font-style: italic">        with respect to provided trajectories.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        r: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Reward of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Expected state visitation frequencies of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        n_trajectories <span style="color: #666666">=</span> <span style="color: #008000">len</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories)
+        trajectory_length <span style="color: #666666">=</span> <span style="color: #008000">max</span>([<span style="color: #008000">len</span>(trajectory) <span style="color: #008000; font-weight: bold">for</span> trajectory <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories])
+        start_state_count <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)
+        <span style="color: #008000; font-weight: bold">for</span> trajectory <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories:
+            start_state_count[<span style="color: #008000">int</span>(trajectory[<span style="color: #666666">0</span>, <span style="color: #666666">0</span>])] <span style="color: #666666">+=</span> <span style="color: #666666">1</span>
+        p_start_state <span style="color: #666666">=</span> start_state_count<span style="color: #666666">/</span>n_trajectories
+        expected_svf <span style="color: #666666">=</span> np<span style="color: #666666">.</span>tile(p_start_state, (trajectory_length, <span style="color: #666666">1</span>))<span style="color: #666666">.</span>T
+        
+        <span style="color: #408080; font-style: italic"># To do: find transitions without using model.</span>
+        
+        policy <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>find_policy(r)
+        <span style="color: #008000; font-weight: bold">for</span> t <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #666666">1</span>, trajectory_length):
+            expected_svf[:, t] <span style="color: #666666">=</span> <span style="color: #666666">0</span>
+            <span style="color: #008000; font-weight: bold">for</span> i, j, k <span style="color: #AA22FF; font-weight: bold">in</span> product(<span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states), <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions), <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)):
+                expected_svf[k, t] <span style="color: #666666">+=</span> (expected_svf[i, t<span style="color: #666666">-1</span>] <span style="color: #666666">*</span>
+                                      policy[i, j] <span style="color: #666666">*</span> <span style="color: #408080; font-style: italic"># Stochastic policy</span>
+                                      <span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[i, j, k])
+        <span style="color: #008000; font-weight: bold">return</span> expected_svf<span style="color: #666666">.</span>sum(axis<span style="color: #666666">=1</span>)
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">expected_value_difference</span>(<span style="color: #008000">self</span>, optimal_policy, irl_policy, true_reward):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Compute expected value difference of the computed policy.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        optimal_policy: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Optimal policy of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        irl_policy: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Policy of the MDP computed through inverse reinforcement learning.</span>
+<span style="color: #BA2121; font-style: italic">        true_reward: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            True reward of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        float</span>
+<span style="color: #BA2121; font-style: italic">            Expected value difference of the MDP.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        n_trajectories <span style="color: #666666">=</span> <span style="color: #008000">len</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories)
+        start_state_count <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states)
+        <span style="color: #008000; font-weight: bold">for</span> trajectory <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>trajectories:
+            start_state_count[<span style="color: #008000">int</span>(trajectory[<span style="color: #666666">0</span>, <span style="color: #666666">0</span>])] <span style="color: #666666">+=</span> <span style="color: #666666">1</span>
+        p_start_state <span style="color: #666666">=</span> start_state_count <span style="color: #666666">/</span> n_trajectories
+        
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>value(optimal_policy, true_reward)<span style="color: #666666">.</span>dot(p_start_state) <span style="color: #666666">-</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>value(irl_policy, true_reward)<span style="color: #666666">.</span>dot(p_start_state)
+</pre></div>
+<br>
+<p style="font-weight: bold; font-size: 1.2em;">Dynamics of a simplified single level limit order book</p>
+<p>
+    The prototype MDP on which the inverse reinforcement learner is tested is given by the reference paper. 
+    It is a single level limit order book with three uninformed traders and an expert agent.
+</p>
+
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">LOB</span>:
+    <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">    Limit order book simulation class taken from the above referenced paper.</span>
+<span style="color: #BA2121; font-style: italic">    </span>
+<span style="color: #BA2121; font-style: italic">    Parameters</span>
+<span style="color: #BA2121; font-style: italic">    ----------</span>
+<span style="color: #BA2121; font-style: italic">    N: int, default: 3</span>
+<span style="color: #BA2121; font-style: italic">        number of traders</span>
+<span style="color: #BA2121; font-style: italic">    tau: list of float, default: [.1, .5, 1]</span>
+<span style="color: #BA2121; font-style: italic">        parameters of each trader</span>
+<span style="color: #BA2121; font-style: italic">    I_max: int, default: 5</span>
+<span style="color: #BA2121; font-style: italic">        maximum inventory size</span>
+<span style="color: #BA2121; font-style: italic">    T: int, default: 5</span>
+<span style="color: #BA2121; font-style: italic">        number of timesteps</span>
+<span style="color: #BA2121; font-style: italic">    best_bid: float, default: 99.9</span>
+<span style="color: #BA2121; font-style: italic">        best_bid price</span>
+<span style="color: #BA2121; font-style: italic">    best_ask: float, default: 100</span>
+<span style="color: #BA2121; font-style: italic">        best_ask price</span>
+<span style="color: #BA2121; font-style: italic">    linear_reward: bool, default: True</span>
+<span style="color: #BA2121; font-style: italic">        True for linear reward, False for exponential reward.</span>
+<span style="color: #BA2121; font-style: italic">    </span>
+<span style="color: #BA2121; font-style: italic">    Attributes</span>
+<span style="color: #BA2121; font-style: italic">    ----------</span>
+<span style="color: #BA2121; font-style: italic">    N: int</span>
+<span style="color: #BA2121; font-style: italic">        number of traders</span>
+<span style="color: #BA2121; font-style: italic">    tau: list of float</span>
+<span style="color: #BA2121; font-style: italic">        parameters of each trader</span>
+<span style="color: #BA2121; font-style: italic">    I_max: int</span>
+<span style="color: #BA2121; font-style: italic">        maximum inventory size</span>
+<span style="color: #BA2121; font-style: italic">    T: int</span>
+<span style="color: #BA2121; font-style: italic">        number of timesteps</span>
+<span style="color: #BA2121; font-style: italic">    best_bid: float</span>
+<span style="color: #BA2121; font-style: italic">        best_bid price</span>
+<span style="color: #BA2121; font-style: italic">    best_ask: float</span>
+<span style="color: #BA2121; font-style: italic">        best_ask price</span>
+<span style="color: #BA2121; font-style: italic">    feature_matrix: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">        matrix of features</span>
+<span style="color: #BA2121; font-style: italic">    num_states: int</span>
+<span style="color: #BA2121; font-style: italic">        number of states</span>
+<span style="color: #BA2121; font-style: italic">    dim_states: int</span>
+<span style="color: #BA2121; font-style: italic">        dimensions of each state</span>
+<span style="color: #BA2121; font-style: italic">    num_actions: int</span>
+<span style="color: #BA2121; font-style: italic">        number of actions</span>
+<span style="color: #BA2121; font-style: italic">    transitions: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">        transition matrix</span>
+<span style="color: #BA2121; font-style: italic">    true_reward: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">        true reward of the environment</span>
+<span style="color: #BA2121; font-style: italic">    &#39;&#39;&#39;</span>
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">__init__</span>(
+        <span style="color: #008000">self</span>,
+        N <span style="color: #666666">=</span> <span style="color: #666666">3</span>,
+        tau <span style="color: #666666">=</span> [<span style="color: #666666">.1</span>, <span style="color: #666666">.5</span>, <span style="color: #666666">1</span>],
+        I_max <span style="color: #666666">=</span> <span style="color: #666666">5</span>,
+        T <span style="color: #666666">=</span> <span style="color: #666666">5</span>,
+        best_bid <span style="color: #666666">=</span> <span style="color: #666666">99.9</span>,
+        best_ask <span style="color: #666666">=</span> <span style="color: #666666">100</span>,
+        linear_reward<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">True</span>,
+    ):
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">=</span> N
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>tau <span style="color: #666666">=</span> tau
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>I_max <span style="color: #666666">=</span> I_max
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>T <span style="color: #666666">=</span> T
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>best_bid <span style="color: #666666">=</span> best_bid
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>best_ask <span style="color: #666666">=</span> best_ask
+        
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array([np<span style="color: #666666">.</span>array(<span style="color: #008000">self</span><span style="color: #666666">.</span>int_to_state(j)) <span style="color: #008000; font-weight: bold">for</span> j <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>state_to_int(<span style="color: #008000">self</span><span style="color: #666666">.</span>N, <span style="color: #666666">0</span>, <span style="color: #008000">self</span><span style="color: #666666">.</span>I_max) <span style="color: #666666">+</span> <span style="color: #666666">1</span>)])
+        
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>num_states, <span style="color: #008000">self</span><span style="color: #666666">.</span>dim_states <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix<span style="color: #666666">.</span>shape
+        
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>num_actions <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>action_to_int(<span style="color: #008000">self</span><span style="color: #666666">.</span>N, <span style="color: #666666">0</span>) <span style="color: #666666">+</span> <span style="color: #666666">1</span>
+        
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>transitions <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array([
+            np<span style="color: #666666">.</span>array([
+                np<span style="color: #666666">.</span>array([
+                    <span style="color: #008000">self</span><span style="color: #666666">.</span>probability(
+                        <span style="color: #008000">self</span><span style="color: #666666">.</span>int_to_state(i),
+                        <span style="color: #008000">self</span><span style="color: #666666">.</span>int_to_action(j),
+                        <span style="color: #008000">self</span><span style="color: #666666">.</span>int_to_state(k),
+                    ) <span style="color: #008000; font-weight: bold">for</span> k <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>state_to_int(<span style="color: #008000">self</span><span style="color: #666666">.</span>N, <span style="color: #666666">0</span>, <span style="color: #008000">self</span><span style="color: #666666">.</span>I_max) <span style="color: #666666">+</span> <span style="color: #666666">1</span>)
+                ]) <span style="color: #008000; font-weight: bold">for</span> j <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>action_to_int(<span style="color: #008000">self</span><span style="color: #666666">.</span>N, <span style="color: #666666">0</span>) <span style="color: #666666">+</span> <span style="color: #666666">1</span>)
+            ]) <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>state_to_int(<span style="color: #008000">self</span><span style="color: #666666">.</span>N, <span style="color: #666666">0</span>, <span style="color: #008000">self</span><span style="color: #666666">.</span>I_max) <span style="color: #666666">+</span> <span style="color: #666666">1</span>)
+        ])
+        
+        <span style="color: #008000; font-weight: bold">if</span> linear_reward:
+            <span style="color: #008000">self</span><span style="color: #666666">.</span>reward <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>reward_linear
+        <span style="color: #008000; font-weight: bold">else</span>:
+            <span style="color: #008000">self</span><span style="color: #666666">.</span>reward <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>reward_exponential
+                
+        <span style="color: #008000">self</span><span style="color: #666666">.</span>true_reward <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array([<span style="color: #008000">self</span><span style="color: #666666">.</span>reward(b,a,i) <span style="color: #008000; font-weight: bold">for</span> (b,a,i) <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix])        
+
+    <span style="color: #408080; font-style: italic"># state enumeration</span>
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">state_to_int</span>(<span style="color: #008000">self</span>, v_b, v_a, i_EA):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Enumerates a state.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        v_b: int</span>
+<span style="color: #BA2121; font-style: italic">            Size of bid side of the order book</span>
+<span style="color: #BA2121; font-style: italic">        v_a: int</span>
+<span style="color: #BA2121; font-style: italic">            Size of ask side of the order book</span>
+<span style="color: #BA2121; font-style: italic">        i_EA: int</span>
+<span style="color: #BA2121; font-style: italic">            Inventory size of the expert agent</span>
+<span style="color: #BA2121; font-style: italic">            </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        int</span>
+<span style="color: #BA2121; font-style: italic">            Enumerated state</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        states_i <span style="color: #666666">=</span> <span style="color: #666666">.5</span> <span style="color: #666666">*</span> (<span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">+</span> <span style="color: #666666">1</span>) <span style="color: #666666">*</span> (<span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">+</span> <span style="color: #666666">2</span>) <span style="color: #666666">*</span> (i_EA <span style="color: #666666">+</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>I_max)
+        states_vb <span style="color: #666666">=</span> (<span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">+</span> <span style="color: #666666">1</span>) <span style="color: #666666">*</span> v_b <span style="color: #666666">-</span> <span style="color: #666666">.5</span> <span style="color: #666666">*</span> v_b <span style="color: #666666">*</span> (v_b <span style="color: #666666">-</span> <span style="color: #666666">1</span>)
+        states_va <span style="color: #666666">=</span> v_a
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">int</span>(states_i <span style="color: #666666">+</span> states_vb <span style="color: #666666">+</span> states_va)
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">int_to_state</span>(<span style="color: #008000">self</span>, num):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Maps an integer to a state.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        num: int</span>
+<span style="color: #BA2121; font-style: italic">            Integer enumerating the state</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        list</span>
+<span style="color: #BA2121; font-style: italic">            State parameters</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        states_per_i <span style="color: #666666">=</span> <span style="color: #666666">.5</span> <span style="color: #666666">*</span> (<span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">+</span> <span style="color: #666666">1</span>) <span style="color: #666666">*</span> (<span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">+</span> <span style="color: #666666">2</span>)
+        i_states <span style="color: #666666">=</span> <span style="color: #008000">int</span>(num <span style="color: #666666">//</span> states_per_i) <span style="color: #666666">-</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>I_max
+        left_over <span style="color: #666666">=</span> num <span style="color: #666666">%</span> states_per_i
+        vb_states <span style="color: #666666">=</span> <span style="color: #008000">int</span>((np<span style="color: #666666">.</span>cumsum([i<span style="color: #666666">+1</span> <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>N<span style="color: #666666">+1</span>)][::<span style="color: #666666">-1</span>]) <span style="color: #666666">&gt;</span> left_over)<span style="color: #666666">.</span>nonzero()[<span style="color: #666666">0</span>][<span style="color: #666666">0</span>])
+        <span style="color: #008000; font-weight: bold">if</span> vb_states <span style="color: #666666">==</span> <span style="color: #666666">0</span>:
+            va_states <span style="color: #666666">=</span> <span style="color: #008000">int</span>(left_over)
+        <span style="color: #008000; font-weight: bold">else</span>:
+            va_states <span style="color: #666666">=</span> <span style="color: #008000">int</span>(left_over <span style="color: #666666">-</span> np<span style="color: #666666">.</span>cumsum([i<span style="color: #666666">+1</span> <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>N<span style="color: #666666">+1</span>)][::<span style="color: #666666">-1</span>])[
+                np<span style="color: #666666">.</span>cumsum([i<span style="color: #666666">+1</span> <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>N<span style="color: #666666">+1</span>)][::<span style="color: #666666">-1</span>]) <span style="color: #666666">&gt;</span> vb_states
+            ][vb_states <span style="color: #666666">-</span> <span style="color: #666666">1</span>])
+        <span style="color: #008000; font-weight: bold">return</span> [vb_states, va_states, i_states]
+
+    <span style="color: #408080; font-style: italic"># action enumeration</span>
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">action_to_int</span>(<span style="color: #008000">self</span>, vb, va):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Enumerates an action.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        vb: int</span>
+<span style="color: #BA2121; font-style: italic">            Bid-side volume</span>
+<span style="color: #BA2121; font-style: italic">        va: int</span>
+<span style="color: #BA2121; font-style: italic">            Ask-side volume</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        int</span>
+<span style="color: #BA2121; font-style: italic">            Enumerated action</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">int</span>(<span style="color: #666666">.5</span> <span style="color: #666666">*</span> (vb <span style="color: #666666">+</span> va) <span style="color: #666666">*</span> (vb <span style="color: #666666">+</span> va <span style="color: #666666">+</span> <span style="color: #666666">1</span>) <span style="color: #666666">+</span> vb)
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">int_to_action</span>(<span style="color: #008000">self</span>, num):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Maps an integer to an action</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        num: int</span>
+<span style="color: #BA2121; font-style: italic">            Integer enumerating the action</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        tuple</span>
+<span style="color: #BA2121; font-style: italic">            Action parameters</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        numsum <span style="color: #666666">=</span> (np<span style="color: #666666">.</span>array([<span style="color: #666666">.5</span> <span style="color: #666666">*</span> i <span style="color: #666666">*</span> (i <span style="color: #666666">+</span> <span style="color: #666666">1</span>) <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">+</span> <span style="color: #666666">1</span>)]) <span style="color: #666666">&lt;=</span> num)<span style="color: #666666">.</span>nonzero()[<span style="color: #666666">0</span>][<span style="color: #666666">-1</span>]
+        vb <span style="color: #666666">=</span> <span style="color: #008000">int</span>(num <span style="color: #666666">-</span> [<span style="color: #666666">.5</span> <span style="color: #666666">*</span> i <span style="color: #666666">*</span> (i <span style="color: #666666">+</span> <span style="color: #666666">1</span>) <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">+</span> <span style="color: #666666">1</span>)][numsum])
+        va <span style="color: #666666">=</span> <span style="color: #008000">int</span>(numsum <span style="color: #666666">-</span> vb)
+        <span style="color: #008000; font-weight: bold">return</span> (vb, va)
+
+    <span style="color: #408080; font-style: italic"># transition probabilities</span>
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">bid_probability</span>(<span style="color: #008000">self</span>, tau, b, a):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Computes Bernoulli probability of a bid, given tau, previous bid, and previous ask.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        tau: int</span>
+<span style="color: #BA2121; font-style: italic">            trader parameter</span>
+<span style="color: #BA2121; font-style: italic">        b: int</span>
+<span style="color: #BA2121; font-style: italic">            previous bid</span>
+<span style="color: #BA2121; font-style: italic">        a: int</span>
+<span style="color: #BA2121; font-style: italic">            previous ask</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        float</span>
+<span style="color: #BA2121; font-style: italic">            probability of a bid</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        b_, a_ <span style="color: #666666">=</span> b <span style="color: #666666">/</span> tau, a <span style="color: #666666">/</span> tau
+        result <span style="color: #666666">=</span> np<span style="color: #666666">.</span>exp(b_) <span style="color: #666666">/</span> ( np<span style="color: #666666">.</span>exp(b_) <span style="color: #666666">+</span> np<span style="color: #666666">.</span>exp(a_))
+        <span style="color: #008000; font-weight: bold">return</span> result
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">poisson_binomial</span>(<span style="color: #008000">self</span>, k, n, b<span style="color: #666666">=0</span>, a<span style="color: #666666">=0</span>):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Uses the poisson binomial distribution of having k successful trials out of a total of n,</span>
+<span style="color: #BA2121; font-style: italic">        to compute the probability of k bids with n trading agents.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        k: int</span>
+<span style="color: #BA2121; font-style: italic">            number of successful trials.</span>
+<span style="color: #BA2121; font-style: italic">        n: int</span>
+<span style="color: #BA2121; font-style: italic">            total number of trials.</span>
+<span style="color: #BA2121; font-style: italic">        b: int, default: 0</span>
+<span style="color: #BA2121; font-style: italic">            number of asks.</span>
+<span style="color: #BA2121; font-style: italic">        a: int, default: 0</span>
+<span style="color: #BA2121; font-style: italic">            number of bids.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        float</span>
+<span style="color: #BA2121; font-style: italic">            probability of k bids with n trading agents.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        result <span style="color: #666666">=</span> <span style="color: #666666">0</span>
+        F_k <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array(<span style="color: #008000">list</span>(combinations(<span style="color: #008000">list</span>(<span style="color: #008000">range</span>(<span style="color: #666666">1</span>, n <span style="color: #666666">+</span> <span style="color: #666666">1</span>)), k)))
+        <span style="color: #008000; font-weight: bold">for</span> A <span style="color: #AA22FF; font-weight: bold">in</span> F_k:
+            pi_1 <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array([<span style="color: #008000">self</span><span style="color: #666666">.</span>bid_probability(<span style="color: #008000">self</span><span style="color: #666666">.</span>tau[e<span style="color: #666666">-1</span>], b, a) <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> A])<span style="color: #666666">.</span>prod()
+            pi_2 <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array([
+                <span style="color: #666666">1</span> <span style="color: #666666">-</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>bid_probability(<span style="color: #008000">self</span><span style="color: #666666">.</span>tau[e<span style="color: #666666">-1</span>], b, a) <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> np<span style="color: #666666">.</span>setdiff1d(<span style="color: #008000">range</span>(<span style="color: #666666">1</span>, n <span style="color: #666666">+</span> <span style="color: #666666">1</span>), A)
+            ])<span style="color: #666666">.</span>prod()
+            result <span style="color: #666666">+=</span> pi_1 <span style="color: #666666">*</span> pi_2
+        <span style="color: #008000; font-weight: bold">return</span> result
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">probability</span>(<span style="color: #008000">self</span>, s0, a, s1):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Compute probability of transition between states</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        s0: int</span>
+<span style="color: #BA2121; font-style: italic">            initial state.</span>
+<span style="color: #BA2121; font-style: italic">        a: int</span>
+<span style="color: #BA2121; font-style: italic">            action.</span>
+<span style="color: #BA2121; font-style: italic">        s1: int</span>
+<span style="color: #BA2121; font-style: italic">            succeeding state.</span>
+<span style="color: #BA2121; font-style: italic">            </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        float</span>
+<span style="color: #BA2121; font-style: italic">            Probability of transition from s0 to s1 through a.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        belief_states <span style="color: #666666">=</span> [i <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">list</span>(product(<span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>N<span style="color: #666666">+1</span>),<span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>N<span style="color: #666666">+1</span>))) <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">sum</span>(i) <span style="color: #666666">==</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>N]
+        <span style="color: #008000; font-weight: bold">for</span> belief_state <span style="color: #AA22FF; font-weight: bold">in</span> belief_states:
+            <span style="color: #008000; font-weight: bold">if</span> (<span style="color: #008000">max</span>(belief_state[<span style="color: #666666">0</span>] <span style="color: #666666">-</span> a[<span style="color: #666666">1</span>], <span style="color: #666666">0</span>) <span style="color: #666666">==</span> s1[<span style="color: #666666">0</span>]) <span style="color: #AA22FF; font-weight: bold">and</span> (<span style="color: #008000">max</span>(belief_state[<span style="color: #666666">1</span>] <span style="color: #666666">-</span> a[<span style="color: #666666">0</span>], <span style="color: #666666">0</span>) <span style="color: #666666">==</span> s1[<span style="color: #666666">1</span>]):
+                bought <span style="color: #666666">=</span> a[<span style="color: #666666">0</span>] <span style="color: #666666">-</span> <span style="color: #008000">max</span>(a[<span style="color: #666666">0</span>] <span style="color: #666666">-</span> belief_state[<span style="color: #666666">1</span>], <span style="color: #666666">0</span>)
+                sold <span style="color: #666666">=</span> a[<span style="color: #666666">1</span>] <span style="color: #666666">-</span> <span style="color: #008000">max</span>(a[<span style="color: #666666">1</span>] <span style="color: #666666">-</span> belief_state[<span style="color: #666666">0</span>], <span style="color: #666666">0</span>)
+                <span style="color: #008000; font-weight: bold">if</span> s1[<span style="color: #666666">-1</span>] <span style="color: #666666">==</span> sold <span style="color: #666666">-</span> bought:
+                    <span style="color: #408080; font-style: italic"># print(s0, a, s1, belief_state)</span>
+                    <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>poisson_binomial(belief_state[<span style="color: #666666">0</span>], n<span style="color: #666666">=</span><span style="color: #008000">self</span><span style="color: #666666">.</span>N, b <span style="color: #666666">=</span> s0[<span style="color: #666666">0</span>], a <span style="color: #666666">=</span> s0[<span style="color: #666666">1</span>])
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #666666">0</span>
+    
+    <span style="color: #408080; font-style: italic"># reward</span>
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">reward_linear</span>(<span style="color: #008000">self</span>, b, a, i):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Compute the linear reward of a state.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        b: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of bids.</span>
+<span style="color: #BA2121; font-style: italic">        a: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of asks.</span>
+<span style="color: #BA2121; font-style: italic">        i: int</span>
+<span style="color: #BA2121; font-style: italic">            Inventory.</span>
+<span style="color: #BA2121; font-style: italic">            </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        float</span>
+<span style="color: #BA2121; font-style: italic">            Linear reward.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>N <span style="color: #666666">-</span> b <span style="color: #666666">-</span> a
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">reward_exponential</span>(<span style="color: #008000">self</span>, b, a, i, alpha<span style="color: #666666">=1</span>, beta<span style="color: #666666">=1</span>):
+        <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">        Compute the exponential reward of a state.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        b: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of bids.</span>
+<span style="color: #BA2121; font-style: italic">        a: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of asks.</span>
+<span style="color: #BA2121; font-style: italic">        i: int</span>
+<span style="color: #BA2121; font-style: italic">            Inventory.</span>
+<span style="color: #BA2121; font-style: italic">        alpha: int</span>
+<span style="color: #BA2121; font-style: italic">            Reward parameter.</span>
+<span style="color: #BA2121; font-style: italic">        beta: int</span>
+<span style="color: #BA2121; font-style: italic">            Reward parameter.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        float</span>
+<span style="color: #BA2121; font-style: italic">            Exponential reward.</span>
+<span style="color: #BA2121; font-style: italic">        &#39;&#39;&#39;</span>
+        <span style="color: #008000; font-weight: bold">return</span> <span style="color: #666666">1</span> <span style="color: #666666">-</span> np<span style="color: #666666">.</span>exp(<span style="color: #666666">-</span>alpha <span style="color: #666666">*</span> (<span style="color: #008000">self</span><span style="color: #666666">.</span>reward_linear(b,a,i) <span style="color: #666666">-</span> beta <span style="color: #666666">*</span> <span style="color: #008000">abs</span>(i)))
+    
+    <span style="color: #408080; font-style: italic"># trajectories</span>
+    
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">generate_trajectories</span>(<span style="color: #008000">self</span>, n_trajectories, policy):
+        <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #BA2121; font-style: italic">        Generate n_trajectories trajectories with length trajectory_length, following the given policy.</span>
+<span style="color: #BA2121; font-style: italic">        </span>
+<span style="color: #BA2121; font-style: italic">        Parameters</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        n_trajectories: int</span>
+<span style="color: #BA2121; font-style: italic">            Number of trajectories.</span>
+<span style="color: #BA2121; font-style: italic">        trajectory_length: int</span>
+<span style="color: #BA2121; font-style: italic">            Length of an episode.</span>
+<span style="color: #BA2121; font-style: italic">        policy: np.ndarray</span>
+<span style="color: #BA2121; font-style: italic">            Map from state integers to action integers.</span>
+<span style="color: #BA2121; font-style: italic">        random_start: bool, default: False</span>
+<span style="color: #BA2121; font-style: italic">            Whether to start randomly.</span>
+<span style="color: #BA2121; font-style: italic">            </span>
+<span style="color: #BA2121; font-style: italic">        Returns</span>
+<span style="color: #BA2121; font-style: italic">        ----------</span>
+<span style="color: #BA2121; font-style: italic">        list</span>
+<span style="color: #BA2121; font-style: italic">            list of trajectories each featuring (state, action, reward) tuples.</span>
+<span style="color: #BA2121; font-style: italic">        &quot;&quot;&quot;</span>
+        trajectories <span style="color: #666666">=</span> []
+        <span style="color: #008000; font-weight: bold">for</span> n <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(n_trajectories):
+            state <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>state_to_int(<span style="color: #666666">*</span><span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix[np<span style="color: #666666">.</span>random<span style="color: #666666">.</span>choice(np<span style="color: #666666">.</span>extract(<span style="color: #008000">abs</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix[:,<span style="color: #666666">-1</span>]) <span style="color: #666666">!=</span> <span style="color: #666666">5</span>, <span style="color: #008000">range</span>(<span style="color: #008000">len</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>feature_matrix))))])
+            action <span style="color: #666666">=</span> policy[state]
+            trajectory <span style="color: #666666">=</span> [
+                np<span style="color: #666666">.</span>array([state, action, <span style="color: #008000">self</span><span style="color: #666666">.</span>reward(<span style="color: #666666">*</span><span style="color: #008000">self</span><span style="color: #666666">.</span>int_to_state(state))])
+            ]
+            <span style="color: #408080; font-style: italic"># go until path ends by stopping conditions</span>
+            <span style="color: #008000; font-weight: bold">for</span> t <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>T <span style="color: #666666">-</span> <span style="color: #666666">1</span>):
+                next_state_p <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>transitions[state, action]
+                p <span style="color: #666666">=</span> (next_state_p <span style="color: #666666">/</span> <span style="color: #008000">sum</span>(next_state_p))
+                state <span style="color: #666666">=</span> np<span style="color: #666666">.</span>random<span style="color: #666666">.</span>choice(<span style="color: #008000">range</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>num_states), p <span style="color: #666666">=</span> p)
+                action <span style="color: #666666">=</span> policy[state]
+                trajectory<span style="color: #666666">.</span>append(
+                    np<span style="color: #666666">.</span>array([state, action, <span style="color: #008000">self</span><span style="color: #666666">.</span>reward(<span style="color: #666666">*</span><span style="color: #008000">self</span><span style="color: #666666">.</span>int_to_state(state))])
+                )
+                <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">abs</span>(<span style="color: #008000">self</span><span style="color: #666666">.</span>int_to_state(state)[<span style="color: #666666">-1</span>]) <span style="color: #666666">==</span> <span style="color: #666666">5</span>:
+                    <span style="color: #008000; font-weight: bold">break</span>
+                <span style="color: #408080; font-style: italic"># fix this so that when I = +/- 5, the agent can continue to act so long as action doesn&#39;t result in forbidden I value.</span>
+            trajectories<span style="color: #666666">.</span>append(
+                np<span style="color: #666666">.</span>array(trajectory)
+            )
+        <span style="color: #008000; font-weight: bold">return</span> np<span style="color: #666666">.</span>array(trajectories)
+</pre></div>
+<br>
+<p style="font-weight: bold; font-size: 1.2em">Retrieving linear reward</p>
+<p>
+    The task of inferring a linear reward has been done well for decades. 
+    Therefore, it is important that we achieve an expected value difference that is close to zero.
+</p>
+
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">linear_reward_example</span>():
+    <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">    An example of computing linear reward function using inverse reinforcement learning.</span>
+<span style="color: #BA2121; font-style: italic">    &#39;&#39;&#39;</span>
+
+    lob <span style="color: #666666">=</span> LOB()
+    maxent <span style="color: #666666">=</span> MaxEnt(lob<span style="color: #666666">.</span>feature_matrix, lob<span style="color: #666666">.</span>num_actions, lob<span style="color: #666666">.</span>transitions, trajectories<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">None</span>, horizon<span style="color: #666666">=</span>lob<span style="color: #666666">.</span>T)
+    optimal_value <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>optimal_value(lob<span style="color: #666666">.</span>true_reward)
+    optimal_policy <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>find_policy(lob<span style="color: #666666">.</span>true_reward, stochastic<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">False</span>)
+    <span style="color: #408080; font-style: italic"># generate trajectories using optimal policy</span>
+    trajectories <span style="color: #666666">=</span> lob<span style="color: #666666">.</span>generate_trajectories(<span style="color: #666666">2**10</span>, optimal_policy)
+    maxent<span style="color: #666666">.</span>trajectories <span style="color: #666666">=</span> trajectories
+    irl_reward <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>irl()
+    irl_policy <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>find_policy(irl_reward, stochastic<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">False</span>)
+    
+    evd <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>expected_value_difference(optimal_policy, irl_policy, lob<span style="color: #666666">.</span>true_reward)
+        
+    plt<span style="color: #666666">.</span>figure(figsize<span style="color: #666666">=</span>(<span style="color: #666666">20</span>,<span style="color: #666666">10</span>))
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">1</span>)
+    plt<span style="color: #666666">.</span>plot(lob<span style="color: #666666">.</span>true_reward)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;True reward&#39;</span>)
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Reward&#39;</span>)
+
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">2</span>)
+    plt<span style="color: #666666">.</span>plot(irl_reward)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;MaxEnt reward (EVD = {})&#39;</span><span style="color: #666666">.</span>format(<span style="color: #008000">round</span>(evd, <span style="color: #666666">5</span>)))
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Reward&#39;</span>)
+    
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">3</span>)
+    plt<span style="color: #666666">.</span>plot(optimal_policy)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;True policy&#39;</span>)
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Action integer&#39;</span>)
+
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">4</span>)
+    plt<span style="color: #666666">.</span>plot(irl_policy)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;MaxEnt policy&#39;</span>)
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Action integer&#39;</span>)
+
+    plt<span style="color: #666666">.</span>show()
+    
+    <span style="color: #008000; font-weight: bold">return</span> evd
+</pre></div>
+<br>
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">evd <span style="color: #666666">=</span> linear_reward_example()
+</pre></div>
+
+<br>
+<img src="../files/RL/linear-reward.png" style="width: 100%">
+<br>
+<p style="font-weight: bold; font-size: 1.2em;">Retrieving exponential reward</p>
+<p>
+    The task of inferring a non-linear reward is more daunting and has commonly been tackled using deep learning. 
+    I show that there is no need for this and sufficiently good results can be achieved using direct point estimation.
+</p>
+
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">exponential_reward_example</span>():
+    <span style="color: #BA2121; font-style: italic">&#39;&#39;&#39;</span>
+<span style="color: #BA2121; font-style: italic">    An example of computing exponential reward function using inverse reinforcement learning.</span>
+<span style="color: #BA2121; font-style: italic">    &#39;&#39;&#39;</span>
+    lob <span style="color: #666666">=</span> LOB(linear_reward<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">False</span>)
+    maxent <span style="color: #666666">=</span> MaxEnt(lob<span style="color: #666666">.</span>feature_matrix, lob<span style="color: #666666">.</span>num_actions, lob<span style="color: #666666">.</span>transitions, trajectories<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">None</span>, horizon<span style="color: #666666">=</span>lob<span style="color: #666666">.</span>T)
+    optimal_value <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>optimal_value(lob<span style="color: #666666">.</span>true_reward)
+    optimal_policy <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>find_policy(lob<span style="color: #666666">.</span>true_reward, stochastic<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">False</span>)
+    
+    <span style="color: #408080; font-style: italic"># generate trajectories using optimal policy</span>
+    
+    trajectories <span style="color: #666666">=</span> lob<span style="color: #666666">.</span>generate_trajectories(<span style="color: #666666">2**10</span>, optimal_policy)
+    maxent<span style="color: #666666">.</span>trajectories <span style="color: #666666">=</span> trajectories
+    irl_reward <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>irl()
+    irl_policy <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>find_policy(irl_reward, stochastic<span style="color: #666666">=</span><span style="color: #008000; font-weight: bold">False</span>)
+    evd <span style="color: #666666">=</span> maxent<span style="color: #666666">.</span>expected_value_difference(optimal_policy, irl_policy, lob<span style="color: #666666">.</span>true_reward)
+    
+    plt<span style="color: #666666">.</span>figure(figsize<span style="color: #666666">=</span>(<span style="color: #666666">20</span>,<span style="color: #666666">10</span>))
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">1</span>)
+    plt<span style="color: #666666">.</span>plot(lob<span style="color: #666666">.</span>true_reward)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;True reward&#39;</span>)
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Reward&#39;</span>)
+
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">2</span>)
+    plt<span style="color: #666666">.</span>plot(irl_reward)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;MaxEnt reward (EVD = {})&#39;</span><span style="color: #666666">.</span>format(<span style="color: #008000">round</span>(evd, <span style="color: #666666">5</span>)))
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Reward&#39;</span>)
+    
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">3</span>)
+    plt<span style="color: #666666">.</span>plot(optimal_policy)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;True policy&#39;</span>)
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Action integer&#39;</span>)
+
+    plt<span style="color: #666666">.</span>subplot(<span style="color: #666666">2</span>,<span style="color: #666666">2</span>,<span style="color: #666666">4</span>)
+    plt<span style="color: #666666">.</span>plot(irl_policy)
+    plt<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;MaxEnt policy&#39;</span>)
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #BA2121">&#39;State integer&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #BA2121">&#39;Action integer&#39;</span>)
+
+    plt<span style="color: #666666">.</span>show()
+</pre></div>
+<br>
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">exponential_reward_example()</pre></div>
+<br>
+<img src="../files/RL/exponential-reward.png" style="width: 100%;">
+<br>
+<p>
+        Despite the tremendous accuracy of these results, it is useful to introduce a Bayesian neural network in order to allow the reward function to generalise to previous un-observed regions of the state-action space. 
+        However, this is only neccessary for more complicated MDPs. 
+        I look forward to tackling this problem in the context of statistical physics in the future.
+</p>
+                                </div>
+                        </div>
+                          </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+         </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+            <p>&#xa9; Ramin Tawab 2018</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/holder.min.js"></script>
+  </body>

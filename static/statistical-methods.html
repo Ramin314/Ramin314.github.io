@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="#">
+    <title>Statistical Methods | Ramin Tawab Résumé</title>
+    <link rel="shortcut icon" type="image/png" href="../files/favicon.ico"/>
+    <!-- I wrote this page with the help of the Bootstrap libraries -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link href="../css/album.css" rel="stylesheet">
+    <style>
+            img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            }
+            .accordion {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            }
+            button {
+            text-decoration: none !important;
+            white-space: normal !important;
+            }
+             
+             #player {
+                 margin-left: auto !important;
+                 margin-right: auto !important;
+             }
+         </style>
+    <script type="text/javascript"> 
+        function scroll(element){   
+            var ele = document.getElementById(element);   
+            window.scrollTo(ele.offsetLeft,ele.offsetTop); 
+        }
+    </script>
+  </head>
+
+  <body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../files/CV.pdf">CV</a></li>
+            <li><a href="../index.html#blog" style="cursor: pointer; color: #999;">Blog</a></li>
+            <li><a href="../index.html#portfolio" style="cursor: pointer; color: #999;">Portfolio</a></li>
+        </ul>
+    </nav>
+    
+    <main role="main">
+            <section class="jumbotron text-center">
+               <div class="container">
+                  <h1 class="jumbotron-heading">Statistical Methods</h1>
+                  <p class="lead text-muted">
+                        This page shows examples of hypothesis testing, bootstrapping, and time series analysis that I implemented in Python and R.
+                    </p>
+               </div>
+            </section>
+            <div class="album py-5">
+               <div class="container">
+                  <div>
+                     <div class="accordion" id="accordionExample">
+                        
+                            <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                       <h5 class="mb-0">
+                                          <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                          Hypothesis testing, bootstrapping, and linear regression applied to evolution
+                                          </button>
+                                       </h5>
+                                    </div>
+                                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                       <div class="card-body">
+                                           <p style="font-weight:bold;">The Problem</p>
+                                           <p>Peter and Rosemary Grant are a british couple who have published a dataset reporting on the bird species found in Daphne Major from 1975 to 2012. The site is near the <em>Galápagos</em> Islands where Charles Darwin developed his theory of natural selection. In particular, we are interested in the <em>Geospiza Scandens</em> species. My task was to conduct a statistical analysis of the finches, focusing on the shape of their beaks as this is a simple way to characterise the birds.</p>
+                                           
+                                           <p style="font-weight:bold;">The Solution</p>
+                                           
+                                           <p>First, I import the relevant datasets.</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pandas</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">pd</span><span style="color: #333333">,</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span><span style="color: #333333">,</span> <span style="color: #0e84b5; font-weight: bold">matplotlib.pyplot</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">plt</span>
+            
+            d1975 <span style="color: #333333">=</span> pd<span style="color: #333333">.</span>read_csv(<span style="background-color: #fff0f0">&#39;C:/Users/user/Downloads/finch_beaks_1975.csv&#39;</span>)
+            d2012 <span style="color: #333333">=</span> pd<span style="color: #333333">.</span>read_csv(<span style="background-color: #fff0f0">&#39;C:/Users/user/Downloads/finch_beaks_2012.csv&#39;</span>)
+            
+            d1975<span style="color: #333333">.</span>columns <span style="color: #333333">=</span> [<span style="background-color: #fff0f0">&#39;band&#39;</span>, <span style="background-color: #fff0f0">&#39;species&#39;</span>, <span style="background-color: #fff0f0">&#39;beak length&#39;</span>, <span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]
+            d2012<span style="color: #333333">.</span>columns <span style="color: #333333">=</span> [<span style="background-color: #fff0f0">&#39;band&#39;</span>, <span style="background-color: #fff0f0">&#39;species&#39;</span>, <span style="background-color: #fff0f0">&#39;beak length&#39;</span>, <span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]
+            
+            d1975<span style="color: #333333">.</span>head()
+            d2012<span style="color: #333333">.</span>head()
+            </pre></div>
+            
+                                           <br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">   band species  beak length  beak depth
+            0     2  fortis          9.4         8.0
+            1     9  fortis          9.2         8.3
+            2    12  fortis          9.5         7.5
+            3    15  fortis          9.5         8.0
+            4   305  fortis         11.5         9.9
+            
+                band species  beak length  beak depth
+            0  19022  fortis         10.0         8.5
+            1  19028  fortis         12.5         8.9
+            2  19032  fortis          9.3         7.5
+            3  19041  fortis         10.3         9.6
+            4  19044  fortis         11.0         9.2
+            </pre></div>
+            <br>
+                                           <p>Next, I plot the empirical cumulative distribution functions for beak depth in 1975 and 2012.</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">ecdf</span>(data, label):
+                x <span style="color: #333333">=</span> np<span style="color: #333333">.</span>sort(data)
+                y <span style="color: #333333">=</span> np<span style="color: #333333">.</span>arange(<span style="color: #0000DD; font-weight: bold">1</span>, <span style="color: #007020">len</span>(x)<span style="color: #333333">+</span><span style="color: #0000DD; font-weight: bold">1</span>) <span style="color: #333333">/</span> <span style="color: #007020">len</span>(x)
+                _ <span style="color: #333333">=</span> plt<span style="color: #333333">.</span>plot(x, y, marker<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;.&#39;</span>, linestyle<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;none&#39;</span>)
+                _ <span style="color: #333333">=</span> plt<span style="color: #333333">.</span>xlabel(<span style="background-color: #fff0f0">&#39;value&#39;</span>)
+                _ <span style="color: #333333">=</span> plt<span style="color: #333333">.</span>ylabel(<span style="background-color: #fff0f0">&#39;ECDF&#39;</span>)
+                _ <span style="color: #333333">=</span> plt<span style="color: #333333">.</span>legend(label, loc<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">0</span>)
+                plt<span style="color: #333333">.</span>margins(<span style="color: #333333">.</span><span style="color: #0000DD; font-weight: bold">02</span>)
+                <span style="color: #008800; font-weight: bold">return</span>
+            
+            ecdf(d1975[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>], [<span style="background-color: #fff0f0">&#39;1975&#39;</span>, <span style="background-color: #fff0f0">&#39;2012&#39;</span>])
+            ecdf(d2012[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>], [<span style="background-color: #fff0f0">&#39;1975&#39;</span>, <span style="background-color: #fff0f0">&#39;2012&#39;</span>])
+            </pre></div>
+            <br>
+                                           <img src="../files/StatisticalMethods/../files/StatisticalMethods/graph-5.png" style="width:60%">
+                                           <br>
+                                           <p>The ECDFs are close together as one would expect. I now generate bootstrap replicates of the difference in means between the two sets of data and plot a 95% confidence interval.</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">draw_bootstrap_replicates</span>(data, func, num):
+                <span style="color: #008800; font-weight: bold">return</span> np<span style="color: #333333">.</span>array([func(np<span style="color: #333333">.</span>random<span style="color: #333333">.</span>choice(data, <span style="color: #007020">len</span>(data))) <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(num)])
+            
+            bs_mean_d1975 <span style="color: #333333">=</span> draw_bootstrap_replicates(d1975[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>], np<span style="color: #333333">.</span>mean, <span style="color: #0000DD; font-weight: bold">10000</span>)
+            bs_mean_d2012 <span style="color: #333333">=</span> draw_bootstrap_replicates(d2012[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>], np<span style="color: #333333">.</span>mean, <span style="color: #0000DD; font-weight: bold">10000</span>)
+            
+            bs_mean_diffe <span style="color: #333333">=</span> bs_mean_d1975 <span style="color: #333333">-</span> bs_mean_d2012
+            
+            conf_interval <span style="color: #333333">=</span> np<span style="color: #333333">.</span>percentile(bs_mean_diffe, [<span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #333333">+</span> <span style="color: #6600EE; font-weight: bold">2.5</span>, <span style="color: #0000DD; font-weight: bold">100</span> <span style="color: #333333">-</span> <span style="color: #6600EE; font-weight: bold">2.5</span>])
+            
+            plt<span style="color: #333333">.</span>hist(bs_mean_diffe, <span style="background-color: #fff0f0">&#39;auto&#39;</span>)
+            plt<span style="color: #333333">.</span>axvline(x<span style="color: #333333">=</span>conf_interval[<span style="color: #0000DD; font-weight: bold">0</span>], c<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;red&#39;</span>)
+            plt<span style="color: #333333">.</span>axvline(x<span style="color: #333333">=</span>conf_interval[<span style="color: #0000DD; font-weight: bold">1</span>], c<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;red&#39;</span>)
+            plt<span style="color: #333333">.</span>title(<span style="background-color: #fff0f0">&#39;95% confidence interval of difference in means&#39;</span>)
+            </pre></div>
+            <br>
+                                           <img src="../files/StatisticalMethods/graph-6.png" style="width:60%">
+                                           
+                                           <p>It is clear that the scandens beaks have gotten deeper. I want to set this result out formally in the form of a Hypothesis test.</p>
+                                           <p> The <b>Null Hypothesis</b> is that the means in 1975 and 2012 are equal.</p>
+                                           
+                                           <p>I shift the data sets so that they have the same mean and then use bootstrap sampling to compute the difference of means. The resulting p-value falls below the conventional 0.05 threshold so the observation would have a very low probability under the null hypothesis. </p>
+                                           <p>The null hypothesis must therefore be rejected.</p>
+                                           
+                                           <br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">dconcat <span style="color: #333333">=</span> d1975[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]<span style="color: #333333">.</span>append(d2012[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>])
+            
+            dd1975 <span style="color: #333333">=</span> (<span style="color: #008800; font-weight: bold">lambda</span> x: x <span style="color: #333333">-</span> d1975[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]<span style="color: #333333">.</span>mean() <span style="color: #333333">+</span> dconcat<span style="color: #333333">.</span>mean())(d1975[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>])
+            dd2012 <span style="color: #333333">=</span> (<span style="color: #008800; font-weight: bold">lambda</span> x: x <span style="color: #333333">-</span> d2012[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]<span style="color: #333333">.</span>mean() <span style="color: #333333">+</span> dconcat<span style="color: #333333">.</span>mean())(d2012[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>])
+            
+            dd1975means <span style="color: #333333">=</span> draw_bootstrap_replicates(dd1975, np<span style="color: #333333">.</span>mean, <span style="color: #0000DD; font-weight: bold">10000</span>)
+            dd2012means <span style="color: #333333">=</span> draw_bootstrap_replicates(dd2012, np<span style="color: #333333">.</span>mean, <span style="color: #0000DD; font-weight: bold">10000</span>)
+            
+            ddiff <span style="color: #333333">=</span> dd1975means <span style="color: #333333">-</span> dd2012means
+            
+            diff <span style="color: #333333">=</span> d1975[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]<span style="color: #333333">.</span>mean() <span style="color: #333333">-</span> d2012[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]<span style="color: #333333">.</span>mean()
+            pval <span style="color: #333333">=</span> <span style="color: #007020">sum</span>(ddiff[ddiff <span style="color: #333333">&gt;=</span> diff]) <span style="color: #333333">/</span> <span style="color: #007020">len</span>(ddiff)
+            
+            plt<span style="color: #333333">.</span>hist(ddiff, normed<span style="color: #333333">=</span><span style="color: #008800; font-weight: bold">True</span>, bins<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;auto&#39;</span>)
+            plt<span style="color: #333333">.</span>axvline(x<span style="color: #333333">=</span>diff, c<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;red&#39;</span>)
+            plt<span style="color: #333333">.</span>title(<span style="background-color: #fff0f0">&#39;p-value = %s&#39;</span> <span style="color: #333333">%</span> <span style="color: #007020">str</span>(pval))
+            </pre></div>
+            <br>
+                                           <img src="../files/StatisticalMethods/graph-7.png" style="width:60%">
+                                           <br>
+                                           <p>Now, we compare the ratio of beak length to beak depth so as to gain better capture beak shape.</p>
+                                           
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">ratio1975 <span style="color: #333333">=</span> d1975[<span style="background-color: #fff0f0">&#39;beak length&#39;</span>] <span style="color: #333333">/</span> d1975[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]
+            ratio2012 <span style="color: #333333">=</span> d2012[<span style="background-color: #fff0f0">&#39;beak length&#39;</span>] <span style="color: #333333">/</span> d2012[<span style="background-color: #fff0f0">&#39;beak depth&#39;</span>]
+            
+            diffmeanr <span style="color: #333333">=</span>  ratio1975<span style="color: #333333">.</span>mean() <span style="color: #333333">-</span> ratio2012<span style="color: #333333">.</span>mean()
+            
+            mean1975r <span style="color: #333333">=</span> draw_bootstrap_replicates(ratio1975, np<span style="color: #333333">.</span>mean, <span style="color: #0000DD; font-weight: bold">10000</span>)
+            mean2012r <span style="color: #333333">=</span> draw_bootstrap_replicates(ratio2012, np<span style="color: #333333">.</span>mean, <span style="color: #0000DD; font-weight: bold">10000</span>)
+            
+            plt<span style="color: #333333">.</span>hist(mean1975r, <span style="background-color: #fff0f0">&#39;auto&#39;</span>)
+            plt<span style="color: #333333">.</span>hist(mean2012r, <span style="background-color: #fff0f0">&#39;auto&#39;</span>)
+            plt<span style="color: #333333">.</span>legend([<span style="background-color: #fff0f0">&#39;1975&#39;</span>, <span style="background-color: #fff0f0">&#39;2012&#39;</span>])
+            plt<span style="color: #333333">.</span>title(<span style="background-color: #fff0f0">&#39;99% confidence intervals for beak length to depth ratio&#39;</span>)
+            
+            cfint1975 <span style="color: #333333">=</span> np<span style="color: #333333">.</span>percentile(mean1975r, [<span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #333333">+</span> <span style="color: #333333">.</span><span style="color: #0000DD; font-weight: bold">05</span>, <span style="color: #0000DD; font-weight: bold">100</span> <span style="color: #333333">-</span> <span style="color: #333333">.</span><span style="color: #0000DD; font-weight: bold">05</span>])
+            cfint2012 <span style="color: #333333">=</span> np<span style="color: #333333">.</span>percentile(mean2012r, [<span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #333333">+</span> <span style="color: #333333">.</span><span style="color: #0000DD; font-weight: bold">05</span>, <span style="color: #0000DD; font-weight: bold">100</span> <span style="color: #333333">-</span> <span style="color: #333333">.</span><span style="color: #0000DD; font-weight: bold">05</span>])
+            
+            <span style="color: #008800; font-weight: bold">for</span> line <span style="color: #000000; font-weight: bold">in</span> np<span style="color: #333333">.</span>concatenate((cfint1975, cfint2012)):
+                plt<span style="color: #333333">.</span>axvline(x<span style="color: #333333">=</span>line, color<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;red&#39;</span>)
+            </pre></div>
+            <br>
+                                           <img src="../files/StatisticalMethods/graph-8.png" style="width:60%">
+                                           <br>
+                                           <p>The 99% confidence intervals fall so far apart that it is unneccessary to compute p-values. There is a clear difference in beak shape from 1975 to 2012.</p>
+                                           <p>Finally, we want to look at heredity by comparing the average beak shape of the parents to that of the offspring in both the fortis and the scandens species.</p>
+                                           
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">fortis <span style="color: #333333">=</span> pd<span style="color: #333333">.</span>read_csv(<span style="background-color: #fff0f0">&#39;C:/Users/user/Downloads/fortis_beak_depth_heredity.csv&#39;</span>)
+            scandens <span style="color: #333333">=</span> pd<span style="color: #333333">.</span>read_csv(<span style="background-color: #fff0f0">&#39;C:/Users/user/Downloads/scandens_beak_depth_heredity.csv&#39;</span>)
+            
+            fortis[<span style="background-color: #fff0f0">&#39;parent&#39;</span>] <span style="color: #333333">=</span> (fortis[<span style="background-color: #fff0f0">&#39;Male BD&#39;</span>] <span style="color: #333333">+</span> fortis[<span style="background-color: #fff0f0">&#39;Female BD&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #6600EE; font-weight: bold">2.0</span>
+            
+            fortis<span style="color: #333333">.</span>columns <span style="color: #333333">=</span> [<span style="background-color: #fff0f0">&#39;offspring&#39;</span>, <span style="background-color: #fff0f0">&#39;male&#39;</span>, <span style="background-color: #fff0f0">&#39;female&#39;</span>, <span style="background-color: #fff0f0">&#39;parent&#39;</span>]
+            fortis <span style="color: #333333">=</span> fortis[[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>, <span style="background-color: #fff0f0">&#39;parent&#39;</span>]]
+            
+            scandens<span style="color: #333333">.</span>columns <span style="color: #333333">=</span> [<span style="background-color: #fff0f0">&#39;parent&#39;</span>, <span style="background-color: #fff0f0">&#39;offspring&#39;</span>]
+            
+            plt<span style="color: #333333">.</span>scatter(fortis[<span style="background-color: #fff0f0">&#39;parent&#39;</span>], fortis[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], alpha<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.5</span>, c<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;red&#39;</span>,marker<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;o&#39;</span>)
+            plt<span style="color: #333333">.</span>scatter(scandens[<span style="background-color: #fff0f0">&#39;parent&#39;</span>], scandens[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], alpha<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.5</span>, c<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;blue&#39;</span>, marker<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;o&#39;</span>)
+            plt<span style="color: #333333">.</span>xlabel(<span style="background-color: #fff0f0">&#39;parent (mm)&#39;</span>)
+            plt<span style="color: #333333">.</span>ylabel(<span style="background-color: #fff0f0">&#39;offspring (mm)&#39;</span>)
+            plt<span style="color: #333333">.</span>title(<span style="background-color: #fff0f0">&#39;mean beak depth: parent vs offspring&#39;</span>)
+            plt<span style="color: #333333">.</span>legend([<span style="background-color: #fff0f0">&#39;fortis&#39;</span>, <span style="background-color: #fff0f0">&#39;scandens&#39;</span>], loc<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">4</span>)
+            </pre></div>
+            <br>
+                                           <img src="../files/StatisticalMethods/graph-9.png" style="width:60%">
+                                           <br>
+                                           <p>I chose the covariance of the parents and offspring divided by the variance of the parents as a metric for heritibility.</p>
+                        <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">draw_bs_pairs</span>(x, y, func, size<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">1</span>):
+                output <span style="color: #333333">=</span> []
+                <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(size):
+                    ind <span style="color: #333333">=</span> np<span style="color: #333333">.</span>arange(<span style="color: #007020">len</span>(x))
+                    bs_inds <span style="color: #333333">=</span> np<span style="color: #333333">.</span>random<span style="color: #333333">.</span>choice(ind, <span style="color: #007020">len</span>(ind))
+                    bs_x <span style="color: #333333">=</span> x[bs_inds]
+                    bs_y <span style="color: #333333">=</span> y[bs_inds]
+                    output<span style="color: #333333">.</span>append(func(bs_x, bs_y))
+                <span style="color: #008800; font-weight: bold">return</span> output
+                
+            <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">heritability</span>(x, y): <span style="color: #008800; font-weight: bold">return</span> np<span style="color: #333333">.</span>cov(x, y)[<span style="color: #0000DD; font-weight: bold">1</span>][<span style="color: #0000DD; font-weight: bold">0</span>] <span style="color: #333333">/</span> np<span style="color: #333333">.</span>cov(x, y)[<span style="color: #0000DD; font-weight: bold">1</span>][<span style="color: #0000DD; font-weight: bold">1</span>]
+            
+            fortis_heritability <span style="color: #333333">=</span> heritability(fortis[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], fortis[<span style="background-color: #fff0f0">&#39;parent&#39;</span>])
+            scandens_heritability <span style="color: #333333">=</span> heritability(scandens[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], scandens[<span style="background-color: #fff0f0">&#39;parent&#39;</span>])
+            
+            fortis_bs <span style="color: #333333">=</span> draw_bs_pairs(fortis[<span style="background-color: #fff0f0">&#39;parent&#39;</span>], fortis[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], heritability, size <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1000</span>)
+            scandens_bs <span style="color: #333333">=</span> draw_bs_pairs(scandens[<span style="background-color: #fff0f0">&#39;parent&#39;</span>], scandens[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], heritability, size <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">1000</span>)
+            
+            cfint0 <span style="color: #333333">=</span> np<span style="color: #333333">.</span>percentile(fortis_bs, [<span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #333333">+</span> <span style="color: #6600EE; font-weight: bold">2.5</span>, <span style="color: #0000DD; font-weight: bold">100</span> <span style="color: #333333">-</span> <span style="color: #6600EE; font-weight: bold">2.5</span>])
+            cfint1 <span style="color: #333333">=</span> np<span style="color: #333333">.</span>percentile(scandens_bs, [<span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #333333">+</span> <span style="color: #6600EE; font-weight: bold">2.5</span>, <span style="color: #0000DD; font-weight: bold">100</span> <span style="color: #333333">-</span> <span style="color: #6600EE; font-weight: bold">2.5</span>])
+            
+            plt<span style="color: #333333">.</span>hist(fortis_bs, <span style="background-color: #fff0f0">&#39;auto&#39;</span>)
+            plt<span style="color: #333333">.</span>hist(scandens_bs, <span style="background-color: #fff0f0">&#39;auto&#39;</span>)
+            plt<span style="color: #333333">.</span>title(<span style="background-color: #fff0f0">&#39;95% confidence intervals of heritability&#39;</span>)
+            plt<span style="color: #333333">.</span>legend([<span style="background-color: #fff0f0">&#39;fortis&#39;</span>, <span style="background-color: #fff0f0">&#39;scandens&#39;</span>], loc<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">0</span>)
+            
+            <span style="color: #008800; font-weight: bold">for</span> line <span style="color: #000000; font-weight: bold">in</span> np<span style="color: #333333">.</span>concatenate((cfint0, cfint1)):
+                plt<span style="color: #333333">.</span>axvline(x<span style="color: #333333">=</span>line, color<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;red&#39;</span>)
+            </pre></div>
+            
+            <br>
+                                           <img src="../files/StatisticalMethods/graph-10.png" style="width:60%">
+                                           <br>
+                                           <p>The heritability of beak depth in the scandens species seems low compared to the computed heritability. It could be that this observed heritability was just achieved by chance and beak depth is not really heritable in the species. I test this hypothesis by conducting a pairs permutation test.</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">scandens_heritability <span style="color: #333333">=</span> heritability(scandens[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], scandens[<span style="background-color: #fff0f0">&#39;parent&#39;</span>])
+            replicates <span style="color: #333333">=</span> []
+            <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #0000DD; font-weight: bold">10000</span>):
+                replicates<span style="color: #333333">.</span>append(heritability(scandens[<span style="background-color: #fff0f0">&#39;offspring&#39;</span>], 
+                                               np<span style="color: #333333">.</span>random<span style="color: #333333">.</span>permutation(scandens[<span style="background-color: #fff0f0">&#39;parent&#39;</span>])))
+            pval <span style="color: #333333">=</span> <span style="color: #007020">len</span>([i <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> replicates <span style="color: #008800; font-weight: bold">if</span> i <span style="color: #333333">&gt;</span> scandens_heritability]) <span style="color: #333333">/</span> <span style="color: #007020">float</span>(<span style="color: #007020">len</span>(replicates))
+            plt<span style="color: #333333">.</span>hist(replicates, <span style="background-color: #fff0f0">&#39;auto&#39;</span>)
+            plt<span style="color: #333333">.</span>axvline(x<span style="color: #333333">=</span>scandens_heritability, color<span style="color: #333333">=</span><span style="background-color: #fff0f0">&#39;red&#39;</span>)
+            plt<span style="color: #333333">.</span>title(<span style="background-color: #fff0f0">&#39;p-value = %s&#39;</span> <span style="color: #333333">%</span> pval)
+            plt<span style="color: #333333">.</span>xlabel(<span style="background-color: #fff0f0">&#39;heritability&#39;</span>)
+            </pre></div>
+            <br>
+                                           <img src="../files/StatisticalMethods/graph-11.png" style="width:60%">
+                                           <br>
+                                           <p>The p-value of 0 indeed indicates that beak depth is not heritable in the scandens species. Thus, the difference in beak shape must have been attained through a causal mechanism other than heritability. This naturally paves the way for natural selection.</p>
+                                        </div>
+                                 </div>
+                                     <div class="card-header" id="headingTwo">
+                                       <h5 class="mb-0">
+                                          <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                          Analysing and forecasting time series using a SARIMA model
+                                          </button>
+                                       </h5>
+                                    </div>
+                                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                                       <div class="card-body">
+                                           <p style="font-weight:bold;">The Problem:</p>
+                                           <p>This task required me to forecast time series data found on GitHub. The solution is implemented in R.</p>
+                                           <p style="font-weight:bold;">The Solution:</p>
+                                        <p>First, I load the dataset and explore it.</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">milk &lt;- read.csv(<span style="color: #0000FF">&#39;C:/Users/user/Downloads/milk-data.csv&#39;</span>)
+            
+            head(milk)
+            </pre></div>
+            <br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">    Month Monthly.milk.production..pounds.per.cow
+            1 1962-01                                     589
+            2 1962-02                                     561
+            3 1962-03                                     640
+            4 1962-04                                     656
+            5 1962-05                                     727
+            6 1962-06                                     697
+            </pre></div>
+            <br>
+                                        <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">Milk &lt;- milk$Monthly.milk.production..pounds.per.cow
+            
+            plot(Milk, main=<span style="color: #0000FF">&quot;Monthly milk production&quot;</span>, 
+                 xlab=<span style="color: #0000FF">&quot;time&quot;</span>, ylab=<span style="color: #0000FF">&quot;pounds per cow&quot;</span>, 
+                 type=<span style="color: #0000FF">&quot;l&quot;</span>, col=<span style="color: #0000FF">&quot;blue&quot;</span>)
+            </pre></div>
+            <br>
+                                           <img src="../files/StatisticalMethods/graph-0.png" style="width:80%">
+                                           <p>The data exhibits a distinct seasonal pattern. Thus, it will require seasonal differencing before it can be fit to a SARIMA (seasonal autoregressive integrated moving average) model.</p>
+                                           <br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">library(astsa)
+            
+            plot(Milk, type=<span style="color: #0000FF">&quot;l&quot;</span>)
+            data &lt;- diff(diff(Milk), <span style="color: #0000FF">12</span>)
+            plot(data, type=<span style="color: #0000FF">&quot;l&quot;</span>)
+            acf2(data, <span style="color: #0000FF">50</span>)
+            </pre></div>
+            <br>
+                                           <p>The differenced data should be stationary. There are two outliers in the plot which do not conform to this standard but I chose to ignore these, as advised by the lecturer.</p>
+                                           <img src="../files/StatisticalMethods/graph-1.png" style="width:80%">
+                                           <p>There are significant spikes in the ACF at lag 12, 24, and 36.</p>
+                                           <p>There are significant spikes in the PACF at lag 12 and 24.</p>
+                                           <img src="../files/StatisticalMethods/graph-2.png" style="width:80%">
+                                           <p>The agreed upon parsimony principle required that the parameters of the SARIMA model sum up to six.</p>
+                                               <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">d=<span style="color: #0000FF">1</span>; DD=<span style="color: #0000FF">1</span>; period=<span style="color: #0000FF">12</span>
+            
+            <span style="color: #000080; font-weight: bold">for</span>(p <span style="color: #000080; font-weight: bold">in</span> <span style="color: #0000FF">1</span>:<span style="color: #0000FF">1</span>){
+              <span style="color: #000080; font-weight: bold">for</span>(q <span style="color: #000080; font-weight: bold">in</span> <span style="color: #0000FF">1</span>:<span style="color: #0000FF">1</span>){
+                <span style="color: #000080; font-weight: bold">for</span>(i <span style="color: #000080; font-weight: bold">in</span> <span style="color: #0000FF">1</span>:<span style="color: #0000FF">3</span>){
+                  <span style="color: #000080; font-weight: bold">for</span>(j <span style="color: #000080; font-weight: bold">in</span> <span style="color: #0000FF">1</span>:<span style="color: #0000FF">4</span>){
+                    <span style="color: #000080; font-weight: bold">if</span>(p+d+q+i+DD+j&lt;=<span style="color: #0000FF">10</span>){
+                      model&lt;-arima(x=Milk, order = c((p<span style="color: #0000FF">-1</span>),d,(q<span style="color: #0000FF">-1</span>)), 
+                                   seasonal = list(order=c((i<span style="color: #0000FF">-1</span>),DD,(j<span style="color: #0000FF">-1</span>)), period=period))
+                      pval&lt;-Box.test(model$residuals, lag=log(length(model$residuals)))
+                      sse&lt;-sum(model$residuals^<span style="color: #0000FF">2</span>)
+                      cat(p<span style="color: #0000FF">-1</span>,d,q<span style="color: #0000FF">-1</span>,i<span style="color: #0000FF">-1</span>,DD,j<span style="color: #0000FF">-1</span>,<span style="color: #0000FF">&#39;period=&#39;</span>, period, <span style="color: #0000FF">&#39;AIC=&#39;</span>, model$aic,
+                          <span style="color: #0000FF">&#39; SSE=&#39;</span>,sse,<span style="color: #0000FF">&#39; p-VALUE=&#39;</span>, pval$p.value,<span style="color: #0000FF">&#39;\n&#39;</span>)
+                    }
+                  }
+                }
+              }
+            }
+            </pre></div>
+            <br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">968.3966</span>  SSE= <span style="color: #0000FF">7213.013</span>  p-VALUE= <span style="color: #0000FF">0.4393367</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">1</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">923.3288</span>  SSE= <span style="color: #0000FF">4933.349</span>  p-VALUE= <span style="color: #0000FF">0.6493728</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">2</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">925.3072</span>  SSE= <span style="color: #0000FF">4931.398</span>  p-VALUE= <span style="color: #0000FF">0.6529998</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">3</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">927.2329</span>  SSE= <span style="color: #0000FF">4925.911</span>  p-VALUE= <span style="color: #0000FF">0.6640233</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">938.6402</span>  SSE= <span style="color: #0000FF">5668.197</span>  p-VALUE= <span style="color: #0000FF">0.493531</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">1</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">925.3063</span>  SSE= <span style="color: #0000FF">4931.428</span>  p-VALUE= <span style="color: #0000FF">0.6531856</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">2</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">927.3036</span>  SSE= <span style="color: #0000FF">4931.134</span>  p-VALUE= <span style="color: #0000FF">0.6537711</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">3</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">929.2146</span>  SSE= <span style="color: #0000FF">4924.748</span>  p-VALUE= <span style="color: #0000FF">0.6627108</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">2</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">932.6438</span>  SSE= <span style="color: #0000FF">5308.014</span>  p-VALUE= <span style="color: #0000FF">0.6004813</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">2</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">1</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">927.2797</span>  SSE= <span style="color: #0000FF">4929.733</span>  p-VALUE= <span style="color: #0000FF">0.657349</span> 
+            <span style="color: #0000FF">0</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">0</span> <span style="color: #0000FF">2</span> <span style="color: #0000FF">1</span> <span style="color: #0000FF">2</span> period= <span style="color: #0000FF">12</span> AIC= <span style="color: #0000FF">926.8053</span>  SSE= <span style="color: #0000FF">4618.499</span>  p-VALUE= <span style="color: #0000FF">0.6826743</span> 
+            </pre></div><br>
+            <p>The parameter choice of 0 1 0 1 1 yields the smallest AIC value therefore our model is SARIMA(0,1,0,1,1)<sub>12</sub></p>
+            
+            <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">sarima(Milk, <span style="color: #0000FF">0</span>,<span style="color: #0000FF">1</span>,<span style="color: #0000FF">0</span>,<span style="color: #0000FF">0</span>,<span style="color: #0000FF">1</span>,<span style="color: #0000FF">1</span>,<span style="color: #0000FF">12</span>)
+            </pre></div>
+            <br>
+                                           
+            <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">initial  value <span style="color: #0000FF">2.187412</span> 
+            iter   <span style="color: #0000FF">2</span> value <span style="color: #0000FF">2.041962</span>
+            iter   <span style="color: #0000FF">3</span> value <span style="color: #0000FF">2.026713</span>
+            iter   <span style="color: #0000FF">4</span> value <span style="color: #0000FF">2.023363</span>
+            iter   <span style="color: #0000FF">5</span> value <span style="color: #0000FF">2.020977</span>
+            iter   <span style="color: #0000FF">6</span> value <span style="color: #0000FF">2.020123</span>
+            iter   <span style="color: #0000FF">7</span> value <span style="color: #0000FF">2.020102</span>
+            iter   <span style="color: #0000FF">7</span> value <span style="color: #0000FF">2.020102</span>
+            final  value <span style="color: #0000FF">2.020102</span> 
+            converged
+            initial  value <span style="color: #0000FF">2.027140</span> 
+            iter   <span style="color: #0000FF">2</span> value <span style="color: #0000FF">2.027140</span>
+            iter   <span style="color: #0000FF">3</span> value <span style="color: #0000FF">2.027140</span>
+            iter   <span style="color: #0000FF">3</span> value <span style="color: #0000FF">2.027140</span>
+            iter   <span style="color: #0000FF">3</span> value <span style="color: #0000FF">2.027140</span>
+            final  value <span style="color: #0000FF">2.027140</span> 
+            converged
+            $fit
+            
+            Call:
+            stats::arima(x = xdata, order = c(p, d, q), seasonal = list(order = c(P, D, 
+                Q), period = S), include.mean = !no.constant, optim.control = list(trace = trc, 
+                REPORT = <span style="color: #0000FF">1</span>, reltol = tol))
+            
+            Coefficients:
+                     sma1
+                  <span style="color: #0000FF">-0.6110</span>
+            s.e.   <span style="color: #0000FF">0.0622</span>
+            
+            sigma^<span style="color: #0000FF">2</span> estimated as <span style="color: #0000FF">55.6</span>:  log likelihood = <span style="color: #0000FF">-534.14</span>,  aic = <span style="color: #0000FF">1072.28</span>
+            
+            $degrees_of_freedom
+            [<span style="color: #0000FF">1</span>] <span style="color: #0000FF">154</span>
+            
+            $ttable
+                 Estimate     SE t.value p.value
+            sma1   <span style="color: #0000FF">-0.611</span> <span style="color: #0000FF">0.0622</span> <span style="color: #0000FF">-9.8265</span>       <span style="color: #0000FF">0</span>
+            
+            $AIC
+            [<span style="color: #0000FF">1</span>] <span style="color: #0000FF">5.03001</span>
+            
+            $AICc
+            [<span style="color: #0000FF">1</span>] <span style="color: #0000FF">5.042348</span>
+            
+            $BIC
+            [<span style="color: #0000FF">1</span>] <span style="color: #0000FF">4.048605</span>
+            </pre></div><br>
+            
+                                          <p>The p-value of 0 indicates that the result is significant and residual analysis verifies this. There are outliers present but I chose to ignore these.</p> 
+                                           <br>
+                                           <img src="../files/StatisticalMethods/graph-3.png" style="width:80%">
+                                           <br>
+                                           <p>I can now conduct a time series forecast of two seasons.</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">model&lt;- arima(x=Milk, order = c(<span style="color: #0000FF">0</span>,<span style="color: #0000FF">1</span>,<span style="color: #0000FF">0</span>), seasonal = list(order=c(<span style="color: #0000FF">0</span>,<span style="color: #0000FF">1</span>,<span style="color: #0000FF">1</span>), period=<span style="color: #0000FF">12</span>))
+            plot(forecast(model))
+            </pre></div><br>
+                                           <img src="../files/StatisticalMethods/graph-4.png" style="width:80%">
+                                           <p>The forecast is shown alongside the 95% confidence intervals.</p>
+            
+                                        </div>
+                                 </div>
+                                     
+                                     
+                                  </div>
+                                    </div>
+            
+
+                           </div>
+                        </div>
+                     </div>
+                     
+         </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+            <p>&#xa9; Ramin Tawab 2018</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/holder.min.js"></script>
+  </body>

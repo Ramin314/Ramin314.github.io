@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="#">
+    <title>Home | Ramin Tawab Résumé</title>
+    <link rel="shortcut icon" type="image/png" href="files/favicon.ico"/>
+    <!-- I wrote this page with the help of the Bootstrap libraries -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link href="css/album.css" rel="stylesheet">
+      <style>
+          .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; 
+          }
+      </style>
+    <script type="text/javascript"> 
+        function scroll(element){   
+            var ele = document.getElementById(element);   
+            window.scrollTo(ele.offsetLeft,ele.offsetTop); 
+        }
+    </script>
+  </head>
+
+  <body>
+    <nav>
+        <ul>
+            <li><a href="">Home</a></li>
+            <li><a href="files/CV.pdf">CV</a></li>
+            <li><a onclick="document.getElementById('blog').scrollIntoView({behavior: 'smooth'});" style="cursor: pointer; color: #999;">Blog</a></li>
+            <li><a onclick="document.getElementById('portfolio').scrollIntoView({behavior: 'smooth'});" style="cursor: pointer; color: #999;">Portfolio</a></li>
+        </ul>
+    </nav>
+    <main role="main">
+      <section class="jumbotron text-center">
+        <div class="container">
+          <h1 class="jumbotron-heading">Ramin Tawab</h1>
+          <p class="lead text-muted">
+              This website provides simple examples of my technical skills. These include web development, scientific programming, machine learning, advanced analytics, and data science. My degree is in Mathematics and Physics so this portfolio only represents a small fraction of my skills.
+          </p>
+        </div>
+      </section>
+
+      <div class="album py-5">
+        <div class="container">
+
+<p id="blog" style="font-weight: bold; font-size:1.5em; color: #999;">Blog Posts</p>
+<hr>
+<div class="row">
+        <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="card mb-4 shadow-sm">
+                  <a href="static/bmll.html">
+                      <img class="card-img-top" src="files/BMLL/bmll-logo.png">
+                  </a>
+                  <div class="card-body">
+                      <p class="card-text">
+                          My machine learning internship at BMLL Technologies gave me a look into the world of financial microstructure and agent based modelling.
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-muted">&#9733;&#9733;&#9733;&#9733;&#9733;</small>
+                      <span style="font-size:0.75em">Created: September 2019</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-flex align-items-stretch">
+                    <div class="card mb-4 shadow-sm">
+                      <a href="static/y-combinator.html">
+                          <img class="card-img-top" src="files/BookB/y-combinator-logo.png">
+                      </a>
+                      <div class="card-body">
+                          <p class="card-text">
+                              As a lead full stack developer, 
+                              my startup was invited to Y Combinator in Silicon Valley for an interview and subsequently accepted into the Public startup accelerator.
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small class="text-muted">&#9733;&#9733;&#9733;&#9733;&#9733;</small>
+                          <span style="font-size:0.75em">Created: June 2019</span>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 d-flex align-items-stretch">
+                        <div class="card mb-4 shadow-sm">
+                          <a href="static/npower.html">
+                              <img class="card-img-top" src="files/Npower/npower-logo.jpg">
+                          </a>
+                          <div class="card-body">
+                              <p class="card-text">
+                                  Winning the national npower forecasting challenge proved that domain knowledge and feature engineering are more important than the machine learning algorithms at hand.
+                            <div class="d-flex justify-content-between align-items-center">
+                              <small class="text-muted">&#9733;&#9733;&#9733;&#9733;&#9733;</small>
+                              <span style="font-size:0.75em">Created: December 2018</span>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+</div>
+
+
+    <p id="portfolio" style="font-weight: bold; font-size:1.5em; color: #999;">Portfolio</p>
+    <hr>
+          <div class="row">
+
+                <div class="col-lg-4 d-flex align-items-stretch">
+                        <div class="card mb-4 shadow-sm">
+                          <a href="static/reinforcement-learning.html">
+                          <img class="card-img-top" src="files/RL/thumbnail.png" alt="Card image cap">
+                          </a>
+                          <div class="card-body">
+                              <p class="card-text">Forward and <span style="font-weight: bold;">inverse reinforcement learning</span> applied to finance</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                              <small class="text-muted">&#9733;&#9733;&#9733;&#9734;&#9734;</small>
+                              <span style="font-size:0.75em">Created: September 2019</span>
+                          </div>
+                          </div>
+                        </div>
+                      </div>
+
+                <div class="col-lg-4 d-flex align-items-stretch">
+                        <div class="card mb-4 shadow-sm">
+                          <a href="static/deep-learning.html">
+                          <img class="card-img-top" src="files/DeepLearning/thumbnail.jpg" alt="Card image cap">
+                          </a>
+                          <div class="card-body">
+                              <p class="card-text">Applying <span style="font-weight:bold;">deep learning</span> neural networks in Keras and Tensorflow.</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                              <small class="text-muted">&#9733;&#9733;&#9733;&#9734;&#9734;</small>
+                              <span style="font-size:0.75em">Created: September 2018</span>
+                          </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-4 d-flex align-items-stretch">
+                            <div class="card mb-4 shadow-sm">
+                              <a href="static/unsupervised-learning.html">
+                                  <img class="card-img-top" src="files/UnsupervisedLearning/glasses.jpg" alt="Card image cap">
+                              </a>
+                              <div class="card-body">
+                                  <p class="card-text"><span style="font-weight:bold;">Unsupervised learning</span> algorithms such as K-means clustering, t-SNE, NMF and PCA are applied to real world problems.</p>
+                              <div class="d-flex justify-content-between align-items-center">
+                                  <small class="text-muted">&#9733;&#9733;&#9733;&#9733;&#9733;</small>
+                                  <span style="font-size:0.75em">Created: Nov 2017</span>
+                              </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="col-lg-4 d-flex align-items-stretch">
+                                <div class="card mb-4 shadow-sm">
+                                  <a href="static/preprocessing.html">
+                                  <img class="card-img-top" src="files/PreprocessingDatasets/cleaning-data.png">
+                                  </a>
+                                  <div class="card-body">
+                                      <p class="card-text"><span style="font-weight:bold;">Preprocessing datasets</span> in <span style="font-weight:bold">Python</span>. I follow principles of Tidy Data to import, clean and reshape real-world datasets for further analysis. I handle <span style="font-weight:bold;">CSV, XML</span> and <span style="font-weight:bold;">JSON</span> files.</p>
+                                  <div class="d-flex justify-content-between align-items-center">
+                                      <small class="text-muted">&#9733;&#9733;&#9733;&#9733;&#9734;</small>
+                                      <span style="font-size:0.75em">Created: May 2017</span>
+                                  </div>
+                                  </div>
+                                </div>
+                              </div>
+                  
+
+            <div class="col-lg-4 d-flex align-items-stretch">
+              <div class="card mb-4 shadow-sm">
+                <a href="static/scientific-computing.html">
+                    <img class="card-img-top" src="files/ScientificComputing/monte-carlo-solution-1.png">
+                </a>
+                <div class="card-body">
+                    <p class="card-text"><span style="font-weight:bold;">Scientific computing</span> problems that I worked on at University and on my own. Solutions are in <span style="font-weight:bold;">Python, C++ and Java</span>.
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">&#9733;&#9733;&#9733;&#9734;&#9734;</small>
+                    <span style="font-size:0.75em">Created: Jan 2018</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 d-flex align-items-stretch">
+              <div class="card mb-4 shadow-sm">
+                <a href="static/visualisation.html">
+                    <img class="card-img-top" src="files/DataVisualisation/us-map.png" alt="Card image cap">
+                </a>
+                <div class="card-body">
+                    <p class="card-text"><span style="font-weight:bold;">Data Visualisation</span> using Matplotlib and D3.js in Python and <b>Javascript</b>.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">&#9733;&#9733;&#9733;&#9733;&#9733;</small>
+                    <span style="font-size:0.75em">Created: Jan 2018</span>
+                </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-4 d-flex align-items-stretch">
+              <div class="card mb-4 shadow-sm">
+                <a href="static/supervised-learning.html">
+                    <img class="card-img-top" src="files/SupervisedLearning/thumbnail.png" alt="Card image cap">
+                </a>
+                <div class="card-body">
+                    <p class="card-text"><span style="font-weight:bold;">Supervised learning</span> algorithms such as random forests and regularised regression.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">&#9733;&#9733;&#9733;&#9734;&#9734;</small>
+                    <span style="font-size:0.75em">Created: Dec 2015</span>
+                </div>
+                </div>
+              </div>
+            </div>
+              
+                          <div class="col-lg-4 d-flex align-items-stretch">
+              <div class="card mb-4 shadow-sm">
+                <a href="static/statistical-methods.html">
+                    <img class="card-img-top" src="files/StatisticalMethods/thumbnail.png" alt="Card image cap">
+                </a>
+                <div class="card-body">
+                    <p class="card-text"><span style="font-weight:bold;">Statistical methods</span> such as hypothesis testing, bootstrapping, and time series analysis and forecasting in <span style="font-weight:bold">Python</span> and <span style="font-weight:bold">R</span>.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">&#9733;&#9733;&#9733;&#9734;&#9734;</small>
+                    <span style="font-size:0.75em">Created: Jan 2018</span>
+                </div>
+
+                </div>
+              </div>
+            </div>
+              
+
+            
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+            <p>&#xa9; Ramin Tawab 2018</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/holder.min.js"></script>
+  </body>

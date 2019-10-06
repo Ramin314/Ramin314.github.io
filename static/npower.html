@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="#">
+    <title>npower forecasting challenge | Ramin Tawab Résumé</title>
+    <link rel="shortcut icon" type="image/png" href="../files/favicon.ico"/>
+    <!-- I wrote this page with the help of the Bootstrap libraries -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link href="../css/album.css" rel="stylesheet">
+      <style>
+          .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; 
+          }
+      </style>
+    <script type="text/javascript"> 
+        function scroll(element){   
+            var ele = document.getElementById(element);   
+            window.scrollTo(ele.offsetLeft,ele.offsetTop); 
+        }
+    </script>
+  </head>
+
+  <body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../files/CV.pdf">CV</a></li>
+            <li><a href="../index.html#blog" style="cursor: pointer; color: #999;">Blog</a></li>
+            <li><a href="../index.html#portfolio" style="cursor: pointer; color: #999;">Portfolio</a></li>
+        </ul>
+    </nav>
+    <main role="main" style="color: #848484; text-align:justify;">
+        <h1 style="margin-top:0.5em;margin-bottom:0.5em;font-size:2em;text-align:left;">Winning a national forecasting competition</h1>
+        <p>
+            I decided to take part in the npower national gas load forecasting competition because no one at Warwick had been able to win it.
+            There were three stages to the competition where we had to forecast intraday gas load consumption over six month periods.
+            I initially thought of using a random forest solution but eventually dived into the literature on consumer behaviour.
+            Owing to my background in Physics, I developed the winning 72 variable multiple multivariate linear regression model.
+        </p>
+        <p>
+            Sadly, npower soon faced financial troubles after their merger with SSE fell through and my achievement was never announced on their website.
+        </p>
+        <img src="../files/Npower/npower-winner.jpg" style="width: 100%;">
+        <p style="padding-top: 1em;">
+            The slideshow from our presentation is available below. It was designed to be informal and explain complex topics in very simple terms.
+        </p>
+        <iframe 
+        src="https://docs.google.com/presentation/d/e/2PACX-1vTwRrIWT8qtRYPKoVHo2EYi7bvMe0-zsEPxf8VnwAva-Lrra2eQcrzLXCW1mNB3OymI1PQm4vmSV3Pr/embed?start=false&loop=false&delayms=3000" 
+        frameborder="0" 
+        allowfullscreen="true" 
+        mozallowfullscreen="true" 
+        webkitallowfullscreen="true"
+        style="width: 100%; height: 20em;"
+        ></iframe>
+    </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+            <p>&#xa9; Ramin Tawab 2018</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/holder.min.js"></script>
+  </body>

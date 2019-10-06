@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="#">
+    <title>Data Preprocessing | Ramin Tawab Résumé</title>
+    <link rel="shortcut icon" type="image/png" href="../files/favicon.ico"/>
+    <!-- I wrote this page with the help of the Bootstrap libraries -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link href="../css/album.css" rel="stylesheet">
+    <style>
+            img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            }
+            .accordion {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            }
+            button {
+            text-decoration: none !important;
+            white-space: normal !important;
+            }
+             
+             #player {
+                 margin-left: auto !important;
+                 margin-right: auto !important;
+             }
+         </style>
+    <script type="text/javascript"> 
+        function scroll(element){   
+            var ele = document.getElementById(element);   
+            window.scrollTo(ele.offsetLeft,ele.offsetTop); 
+        }
+    </script>
+  </head>
+
+  <body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../files/CV.pdf">CV</a></li>
+            <li><a href="../index.html#blog" style="cursor: pointer; color: #999;">Blog</a></li>
+            <li><a href="../index.html#portfolio" style="cursor: pointer; color: #999;">Portfolio</a></li>
+        </ul>
+    </nav>
+    
+    <main role="main">
+            <section class="jumbotron text-center">
+               <div class="container">
+                  <h1 class="jumbotron-heading">Cleaning Data</h1>
+                  <p class="lead text-muted">
+                        This page shows the process I go through to import, clean and reshape real-world datasets in Python.
+                  </p>
+               </div>
+            </section>
+            <div class="album py-5">
+               <div class="container">
+                  <div>
+                     <div class="accordion" id="accordionExample">
+
+                            <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                       <h5 class="mb-0">
+                                          <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                          Cleaning historical life expectancy CSV dataset in Python
+                                          </button>
+                                       </h5>
+                                    </div>
+                                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                       <div class="card-body">
+                                           <p style="font-weight:bold;">The Problem:</p>
+                                        <p>The Gapminder Foundation provides a vast but confusing dataset of life expectancy figures from across the world: <a href="gapminder.csv">Gapminder.csv</a>. The structure and format of the data presents many difficulties. My task was to clean the data and prepare it for analysis. The resulting file should be easy to analyse in Excel.</p>
+                                           <p style="font-weight:bold;">The Code:</p>
+                                           <p>I will walk through the process of preparing the dataset for analysis. First, I import the pandas module and load the dataset. Then, I conduct an exploratory data analysis where I determine the format of the data.</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">pandas</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">pd</span>
+            df <span style="color: #666666">=</span> pd<span style="color: #666666">.</span>read_csv(<span style="color: #BA2121">&#39;gapminder.csv&#39;</span>)
+            </pre></div><br>
+            <!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">df<span style="color: #666666">.</span>info() <span style="color: #408080; font-style: italic"># print some information on the dataset</span>
+            <span style="color: #008000">print</span>(df<span style="color: #666666">.</span>head()) <span style="color: #408080; font-style: italic"># print the first five records in the dataset</span>
+            </pre></div><br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+            RangeIndex: 780 entries, 0 to 779
+            Columns: 219 entries, Unnamed: 0 to Life expectancy
+            dtypes: float64(217), int64(1), object(1)
+            memory usage: 1.3+ MB
+            </pre></div><br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">   Unnamed: 0   1800   1801   1802   1803   1804   1805   1806   1807   1808  \
+            0           0    NaN    NaN    NaN    NaN    NaN    NaN    NaN    NaN    NaN   
+            1           1  28.21  28.20  28.19  28.18  28.17  28.16  28.15  28.14  28.13   
+            2           2    NaN    NaN    NaN    NaN    NaN    NaN    NaN    NaN    NaN   
+            3           3  35.40  35.40  35.40  35.40  35.40  35.40  35.40  35.40  35.40   
+            4           4  28.82  28.82  28.82  28.82  28.82  28.82  28.82  28.82  28.82   
+            
+                       ...            2008  2009  2010  2011  2012  2013  2014  2015  \
+            0          ...             NaN   NaN   NaN   NaN   NaN   NaN   NaN   NaN   
+            1          ...             NaN   NaN   NaN   NaN   NaN   NaN   NaN   NaN   
+            2          ...             NaN   NaN   NaN   NaN   NaN   NaN   NaN   NaN   
+            3          ...             NaN   NaN   NaN   NaN   NaN   NaN   NaN   NaN   
+            4          ...             NaN   NaN   NaN   NaN   NaN   NaN   NaN   NaN   
+            
+               2016        Life expectancy  
+            0   NaN               Abkhazia  
+            1   NaN            Afghanistan  
+            2   NaN  Akrotiri and Dhekelia  
+            3   NaN                Albania  
+            4   NaN                Algeria  
+            
+            [5 rows x 219 columns]
+            </pre></div><p></p>
+                                           <p>The problems with the formatting of the dataset become obvious by the sheer number of NaN entries. The "Life expectancy" column incorrectly contains country names. The "Unnamed: 0" column is redundant. Also, counting the number of unique countries, we find that all countries appear more than once:</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000">sum</span>(df[<span style="color: #BA2121">&#39;Life expectancy&#39;</span>]<span style="color: #666666">.</span>value_counts() <span style="color: #666666">==</span> <span style="color: #666666">1</span>)
+            </pre></div><br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">0
+            </pre></div><br>
+            <p>To solve these problems, I take several steps:</p>
+                                          <!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008000; font-weight: bold">del</span> df[<span style="color: #BA2121">&#39;Unnamed: 0&#39;</span>] <span style="color: #408080; font-style: italic"># delete redundant column</span>
+            df<span style="color: #666666">.</span>columns <span style="color: #666666">=</span> df<span style="color: #666666">.</span>columns<span style="color: #666666">.</span>str<span style="color: #666666">.</span>replace(<span style="color: #BA2121">&#39;Life expectancy&#39;</span>, <span style="color: #BA2121">&#39;Country&#39;</span>) <span style="color: #408080; font-style: italic"># rename column</span>
+            df <span style="color: #666666">=</span> df<span style="color: #666666">.</span>set_index(<span style="color: #BA2121">&#39;Country&#39;</span>)
+            df <span style="color: #666666">=</span> df<span style="color: #666666">.</span>dropna(axis<span style="color: #666666">=0</span>,how<span style="color: #666666">=</span><span style="color: #BA2121">&#39;all&#39;</span>) <span style="color: #408080; font-style: italic"># drop rows with no numerical data</span>
+            df <span style="color: #666666">=</span> df<span style="color: #666666">.</span>fillna(<span style="color: #666666">0</span>) <span style="color: #408080; font-style: italic"># replace NaN values with zeroes</span>
+            df <span style="color: #666666">=</span> df<span style="color: #666666">.</span>groupby(level<span style="color: #666666">=0</span>)<span style="color: #666666">.</span>sum()<span style="color: #666666">.</span>reset_index() <span style="color: #408080; font-style: italic"># group records by country name</span>
+            df <span style="color: #666666">=</span> df<span style="color: #666666">.</span>loc[(df<span style="color: #666666">!=0</span>)<span style="color: #666666">.</span>any(axis<span style="color: #666666">=1</span>)] <span style="color: #408080; font-style: italic"># delete empty columns</span>
+            <span style="color: #008000">print</span>(df<span style="color: #666666">.</span>head()) <span style="color: #408080; font-style: italic"># print first five lines of dataset</span>
+            df<span style="color: #666666">.</span>info() <span style="color: #408080; font-style: italic"># print some information on the dataset</span>
+            </pre></div><br>
+                        <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">          Country   1800   1801   1802   1803   1804   1805   1806   1807  \
+            0     Afghanistan  28.21  28.20  28.19  28.18  28.17  28.16  28.15  28.14   
+            1         Albania  35.40  35.40  35.40  35.40  35.40  35.40  35.40  35.40   
+            2         Algeria  28.82  28.82  28.82  28.82  28.82  28.82  28.82  28.82   
+            3  American Samoa   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   
+            4         Andorra   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   
+            
+                1808  ...    2007  2008  2009  2010  2011  2012  2013  2014  2015   2016  
+            0  28.13  ...    52.4  52.8  53.3  53.6  54.0  54.4  54.8  54.9  53.8  52.72  
+            1  35.40  ...    76.6  76.8  77.0  77.2  77.4  77.5  77.7  77.9  78.0  78.10  
+            2  28.82  ...    75.3  75.5  75.7  76.0  76.1  76.2  76.3  76.3  76.4  76.50  
+            3   0.00  ...    72.4  72.7  71.3  72.8  72.6  72.6  72.7  72.8  72.9  73.00  
+            4   0.00  ...    84.5  84.6  84.6  84.7  84.7  84.7  84.8  84.8  84.8  84.80  
+            
+            [5 rows x 218 columns]
+            </pre></div><br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+            Int64Index: 210 entries, 0 to 209
+            Columns: 218 entries, Country to 2016
+            dtypes: float64(217), object(1)
+            memory usage: 359.3+ KB
+            </pre></div><br>
+            <p>Now I reshape the dataset by melting it. This puts it in a format that can be readily analysed. Since only 4% of values are zero, I choose to impute them by dropping them from the dataset.</p>
+            <!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">df <span style="color: #666666">=</span> pd<span style="color: #666666">.</span>melt(frame<span style="color: #666666">=</span>df,id_vars<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Country&quot;</span>) <span style="color: #408080; font-style: italic"># melt the dataset</span>
+            df<span style="color: #666666">.</span>columns <span style="color: #666666">=</span> [<span style="color: #BA2121">&#39;Country&#39;</span>,<span style="color: #BA2121">&#39;Year&#39;</span>,<span style="color: #BA2121">&#39;Life expectancy&#39;</span>] <span style="color: #408080; font-style: italic"># rename columns</span>
+            df <span style="color: #666666">=</span> df[df[<span style="color: #BA2121">&#39;Life expectancy&#39;</span>] <span style="color: #666666">!=</span> <span style="color: #666666">0</span>] <span style="color: #408080; font-style: italic"># imputation: drop all zero values</span>
+            df<span style="color: #666666">.</span>to_csv(<span style="color: #BA2121">&#39;cleanGapminder.csv&#39;</span>) <span style="color: #408080; font-style: italic"># export the resulting dataframe as a csv file</span>
+            <span style="color: #008000">print</span>(df<span style="color: #666666">.</span>head()) <span style="color: #408080; font-style: italic"># print the first five lines of the dataset</span>
+            <span style="color: #008000">print</span>(df<span style="color: #666666">.</span>tail()) <span style="color: #408080; font-style: italic"># print the last five lines of the dataset</span>
+            </pre></div><br>
+                                           <p style="font-weight:bold;">The Solution:</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">               Country  Year  Life expectancy
+            0          Afghanistan  1800            28.21
+            1              Albania  1800            35.40
+            2              Algeria  1800            28.82
+            5               Angola  1800            26.98
+            6  Antigua and Barbuda  1800            33.54
+            </pre></div><br>
+                                           <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">                  Country  Year  Life expectancy
+            45564  West Bank and Gaza  2016            74.70
+            45565      Western Sahara  2016            68.56
+            45566               Yemen  2016            64.92
+            45567              Zambia  2016            57.10
+            45568            Zimbabwe  2016            61.69
+            </pre></div><br>
+            
+                                           <p>The data has been cleaned and is now ready to be analysed. There may still be cleaning left to do by removing outliers but this requires domain knowledge which I consider to be part of the analysis.</p>
+            
+                                </div>
+                                 </div>
+                                  </div>
+                                  <div class="card">
+                                    <div class="card-header" id="headingTwo">
+                                       <h5 class="mb-0">
+                                          <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                          Scrape and parse MP Financial Interests HTML dataset to JSON in Python
+                                          </button>
+                                       </h5>
+                                    </div>
+                                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                                       <div class="card-body">
+                                           <p style="font-weight:bold;">The Problem:</p>
+                                           <p>Parliament maintains records of any financial interests and benefits that MPs have, and which may influence their political decisions. These are kept at <a href="https://publications.parliament.uk/pa/cm/cmregmem/contents1719.htm">House of Commons publications</a>. However, the data is held across many webpages and in different text formats that are not conducive for analysis. There is no codified structure in the data. My task was to preprocess this data by parsing it into a JSON format.</p>
+                                           <p style="font-weight:bold;">The Code:</p>
+                                           <!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #408080; font-style: italic"># -*- coding: UTF-8 -*-</span>
+            <span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">urllib</span><span style="color: #666666">,</span> <span style="color: #0000FF; font-weight: bold">re</span><span style="color: #666666">,</span> <span style="color: #0000FF; font-weight: bold">json</span>
+            <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">bs4</span> <span style="color: #008000; font-weight: bold">import</span> BeautifulSoup, NavigableString, Tag
+            
+            <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">fetch</span>(url):
+                <span style="color: #BA2121">&#39;Returns the relevant part of the file&#39;</span>
+                <span style="color: #408080; font-style: italic"># Connect to website and fetch raw html</span>
+                <span style="color: #008000; font-weight: bold">try</span>: xml <span style="color: #666666">=</span> urllib<span style="color: #666666">.</span>urlopen(url)<span style="color: #666666">.</span>read()
+                <span style="color: #008000; font-weight: bold">except</span>: <span style="color: #008000; font-weight: bold">raise</span> <span style="color: #D2413A; font-weight: bold">Exception</span>(<span style="color: #BA2121">&#39;Connection to site not made&#39;</span>)
+                <span style="color: #408080; font-style: italic"># Verify that site has relevant content</span>
+                test_string <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;The Register of Members</span><span style="color: #BB6622; font-weight: bold">\&#39;</span><span style="color: #BA2121"> Financial Interests&#39;</span>
+                <span style="color: #008000; font-weight: bold">if</span> test_string <span style="color: #AA22FF; font-weight: bold">not</span> <span style="color: #AA22FF; font-weight: bold">in</span> xml:
+                    <span style="color: #008000; font-weight: bold">raise</span> <span style="color: #D2413A; font-weight: bold">Exception</span>(<span style="color: #BA2121">&#39;Site does not contain test expression&#39;</span>)
+                <span style="color: #408080; font-style: italic"># Parse raw html into DOM</span>
+                xml <span style="color: #666666">=</span> BeautifulSoup(xml, <span style="color: #BA2121">&#39;html.parser&#39;</span>)
+                <span style="color: #008000; font-weight: bold">return</span> xml<span style="color: #666666">.</span>find(<span style="color: #BA2121">&#39;div&#39;</span>,attrs<span style="color: #666666">=</span>{<span style="color: #BA2121">&#39;id&#39;</span>:<span style="color: #BA2121">&#39;mainTextBlock&#39;</span>})
+            
+            <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">get_MP_links</span>(url):
+                <span style="color: #BA2121">&#39;Returns MP Names and respective websites as dictionary&#39;</span>
+                <span style="color: #408080; font-style: italic"># Fetch HTML content and parse into DOM</span>
+                xml <span style="color: #666666">=</span> fetch(url)
+                <span style="color: #408080; font-style: italic"># Search for MP names in main text block using regular expression</span>
+                links <span style="color: #666666">=</span> xml<span style="color: #666666">.</span>findAll(<span style="color: #BA2121">&#39;a&#39;</span>)
+                regex <span style="color: #666666">=</span> re<span style="color: #666666">.</span>compile(<span style="color: #BA2121">r&#39;[A-Za-z- \.]+?, [A-Za-z- \.]+$&#39;</span>)
+                <span style="color: #408080; font-style: italic"># for testing purposes reduced to links may be shortened to [:10]</span>
+                links <span style="color: #666666">=</span> <span style="color: #008000">filter</span>(<span style="color: #008000; font-weight: bold">lambda</span> e: regex<span style="color: #666666">.</span>search(e<span style="color: #666666">.</span>get_text()), links)
+                <span style="color: #408080; font-style: italic"># Construct dictionary of names and links</span>
+                <span style="color: #408080; font-style: italic"># Links make for good key names because they are unique</span>
+                data <span style="color: #666666">=</span> {}
+                <span style="color: #008000; font-weight: bold">for</span> link <span style="color: #AA22FF; font-weight: bold">in</span> links:
+                    name <span style="color: #666666">=</span> link<span style="color: #666666">.</span>get_text()
+                    surname <span style="color: #666666">=</span> name[:name<span style="color: #666666">.</span>find(<span style="color: #BA2121">&#39;,&#39;</span>)]
+                    firstname <span style="color: #666666">=</span> name[name<span style="color: #666666">.</span>find(<span style="color: #BA2121">&#39;,&#39;</span>) <span style="color: #666666">+</span> <span style="color: #666666">1</span>:]
+                    url <span style="color: #666666">=</span> link[<span style="color: #BA2121">&#39;href&#39;</span>]
+                    data[url] <span style="color: #666666">=</span> {<span style="color: #BA2121">&#39;Surname&#39;</span> : surname, <span style="color: #BA2121">&#39;First name&#39;</span> : firstname}
+                <span style="color: #008000; font-weight: bold">return</span> data
+            
+            <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">get_MP_interests</span>(url):
+                <span style="color: #BA2121">&#39;Returns financial interests of a single MP&#39;</span>
+                <span style="color: #408080; font-style: italic"># get HTML content</span>
+                xml <span style="color: #666666">=</span> fetch(url)<span style="color: #666666">.</span>findAll(<span style="color: #BA2121">&#39;p&#39;</span>)
+                xml <span style="color: #666666">=</span> [e <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> xml <span style="color: #008000; font-weight: bold">if</span> e<span style="color: #666666">.</span>get_text()]
+                <span style="color: #408080; font-style: italic"># get categories, e.g. &quot;&lt;strong&gt;1. Employment and earnings&lt;/strong&gt;&quot;</span>
+                regex <span style="color: #666666">=</span> re<span style="color: #666666">.</span>compile(<span style="color: #BA2121">r&#39;[1-9]+?\. .+$&#39;</span>)
+                categories <span style="color: #666666">=</span> [p <span style="color: #008000; font-weight: bold">for</span> p <span style="color: #AA22FF; font-weight: bold">in</span> xml
+                              <span style="color: #008000; font-weight: bold">if</span> p<span style="color: #666666">.</span>find(<span style="color: #BA2121">&#39;strong&#39;</span>) <span style="color: #AA22FF; font-weight: bold">and</span> <span style="color: #008000">bool</span>(regex<span style="color: #666666">.</span>search(p<span style="color: #666666">.</span>get_text()))]
+                data <span style="color: #666666">=</span> {}
+                <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">len</span>(categories)):
+                    <span style="color: #408080; font-style: italic"># get content of each category</span>
+                    <span style="color: #008000; font-weight: bold">if</span> i <span style="color: #666666">==</span> <span style="color: #008000">len</span>(categories) <span style="color: #666666">-</span> <span style="color: #666666">1</span>:
+                        content <span style="color: #666666">=</span> xml[xml<span style="color: #666666">.</span>index(categories[i])<span style="color: #666666">+1</span>:]
+                    <span style="color: #008000; font-weight: bold">else</span>:
+                        content <span style="color: #666666">=</span> xml[xml<span style="color: #666666">.</span>index(categories[i])<span style="color: #666666">+1</span>:xml<span style="color: #666666">.</span>index(categories[i<span style="color: #666666">+1</span>])]
+                    <span style="color: #408080; font-style: italic"># get structure of content</span>
+                    scontent <span style="color: #666666">=</span> {}
+                    structs <span style="color: #666666">=</span> [p <span style="color: #008000; font-weight: bold">for</span> p <span style="color: #AA22FF; font-weight: bold">in</span> content <span style="color: #008000; font-weight: bold">if</span> p<span style="color: #666666">.</span>has_attr(<span style="color: #BA2121">&#39;class&#39;</span>) <span style="color: #AA22FF; font-weight: bold">and</span> <span style="color: #BA2121">&#39;indent&#39;</span> <span style="color: #AA22FF; font-weight: bold">in</span> p[<span style="color: #BA2121">&#39;class&#39;</span>]]
+                    <span style="color: #008000; font-weight: bold">for</span> j <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #008000">len</span>(structs)):
+                        <span style="color: #008000; font-weight: bold">if</span> j <span style="color: #666666">==</span> <span style="color: #008000">len</span>(structs) <span style="color: #666666">-</span> <span style="color: #666666">1</span>:
+                            sdata <span style="color: #666666">=</span> content[content<span style="color: #666666">.</span>index(structs[j]) <span style="color: #666666">+</span> <span style="color: #666666">1</span>:]
+                        <span style="color: #008000; font-weight: bold">else</span>: sdata <span style="color: #666666">=</span> content[content<span style="color: #666666">.</span>index(structs[j]) <span style="color: #666666">+</span> <span style="color: #666666">1</span>:
+                                              content<span style="color: #666666">.</span>index(structs[j<span style="color: #666666">+1</span>])]
+                        <span style="color: #008000; font-weight: bold">if</span> sdata:
+                            structs[j] <span style="color: #666666">=</span> structs[j]<span style="color: #666666">.</span>get_text()
+                            sdata <span style="color: #666666">=</span> [e<span style="color: #666666">.</span>get_text() <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> sdata]
+                            scontent[structs[j]] <span style="color: #666666">=</span> sdata
+                        <span style="color: #008000; font-weight: bold">else</span>:
+                            temp <span style="color: #666666">=</span> [e<span style="color: #666666">.</span>encode(<span style="color: #BA2121">&#39;utf-8&#39;</span>) <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">list</span>(structs[j])
+                                    <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">type</span>(e) <span style="color: #666666">==</span> NavigableString]
+                            temp <span style="color: #666666">+=</span> [el <span style="color: #008000; font-weight: bold">for</span> el <span style="color: #AA22FF; font-weight: bold">in</span> e <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> structs[j]
+                                    <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">type</span>(e) <span style="color: #666666">==</span> Tag <span style="color: #AA22FF; font-weight: bold">and</span> <span style="color: #008000">type</span>(el) <span style="color: #666666">==</span> NavigableString]
+                            structs[j] <span style="color: #666666">=</span> temp
+                            structs[j] <span style="color: #666666">=</span> [e<span style="color: #666666">.</span>split(<span style="color: #BA2121">&#39;:&#39;</span>) <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> structs[j]]
+                            dictionary <span style="color: #666666">=</span> {e[<span style="color: #666666">0</span>]:e[<span style="color: #666666">1</span>] <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> structs[j] <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">len</span>(e) <span style="color: #666666">==</span> <span style="color: #666666">2</span>}
+                            dictionary<span style="color: #666666">.</span>update({<span style="color: #BA2121">&#39;Date Registered&#39;</span> : e[<span style="color: #666666">0</span>] <span style="color: #008000; font-weight: bold">for</span> e <span style="color: #AA22FF; font-weight: bold">in</span> structs[j] <span style="color: #008000; font-weight: bold">if</span> <span style="color: #008000">len</span>(e) <span style="color: #666666">==</span> <span style="color: #666666">1</span>})
+                            scontent[<span style="color: #007020">str</span>(<span style="color: #40a070">j</span>)] <span style="color: #666666">=</span> dictionary
+                    <span style="color: #408080; font-style: italic"># pass content into dictionary</span>
+                    data[categories[i]<span style="color: #666666">.</span>get_text()] <span style="color: #666666">=</span> scontent
+                <span style="color: #008000; font-weight: bold">return</span> data
+            
+            <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">main</span>():
+                <span style="color: #408080; font-style: italic"># website with MP names: (update this as required)</span>
+                url <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;https://publications.parliament.uk/pa/cm/cmregmem/180910/&#39;</span>
+                data <span style="color: #666666">=</span> get_MP_links(url <span style="color: #666666">+</span> <span style="color: #BA2121">&#39;contents.htm&#39;</span>)
+                <span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> data:
+                    data[i]<span style="color: #666666">.</span>update(get_MP_interests(url <span style="color: #666666">+</span> i))
+                <span style="color: #008000; font-weight: bold">return</span> json<span style="color: #666666">.</span>dumps(data) <span style="color: #408080; font-style: italic"># return JSON string of data</span>
+            
+            data <span style="color: #666666">=</span> main()
+            </pre></div>
+            <br>
+                                           <p style="font-weight:bold;">The Solution:</p>
+                                           <p>Example snippet of JSON data when viewed through a JSON pretty printer:</p>
+            <!-- HTML generated using hilite.me --><div style="background: #f0f0f0; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">{  
+               <span style="color: #062873; font-weight: bold">&quot;First name&quot;</span>:<span style="color: #4070a0">&quot;Jeremy&quot;</span>,
+               <span style="color: #062873; font-weight: bold">&quot;2. (b) Any other support not included in Category 2(a)&quot;</span>:{  
+                  <span style="color: #062873; font-weight: bold">&quot;0&quot;</span>:{  
+                     <span style="color: #062873; font-weight: bold">&quot;Date received&quot;</span>:<span style="color: #4070a0">&quot;12 July 2016&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Amount of donation or nature and value if donation in kind&quot;</span>:<span style="color: #4070a0">&quot;interest free, unsecured loan of £50,000 towards my campaign for leadership of the Labour Party. This loan is for an indefinite period.&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Date accepted&quot;</span>:<span style="color: #4070a0">&quot;12 July 2016&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Date Registered&quot;</span>:<span style="color: #4070a0">&quot;(Registered 04 August 2016)&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Name of donor&quot;</span>:<span style="color: #4070a0">&quot;Momentum Campaign (Services) Ltd&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Donor status&quot;</span>:<span style="color: #4070a0">&quot;company, registration 09654873&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Address of donor&quot;</span>:<span style="color: #4070a0">&quot;Walkden House, 10 Melton Street, London NW1 2EJ&quot;</span>
+                  }
+               },
+               <span style="color: #062873; font-weight: bold">&quot;Surname&quot;</span>:<span style="color: #4070a0">&quot;Corbyn&quot;</span>,
+               <span style="color: #062873; font-weight: bold">&quot;5. Gifts and benefits from sources outside the UK&quot;</span>:{  
+                  <span style="color: #062873; font-weight: bold">&quot;0&quot;</span>:{  
+                     <span style="color: #062873; font-weight: bold">&quot;Date received&quot;</span>:<span style="color: #4070a0">&quot;3 January 2018&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Amount of donation, or nature and value if donation in kind&quot;</span>:<span style="color: #4070a0">&quot;First edition of a book, value £37,000, which I have donated to a museum.&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Date accepted&quot;</span>:<span style="color: #4070a0">&quot;3 January 2018&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Date Registered&quot;</span>:<span style="color: #4070a0">&quot;(Registered 17 January 2018)&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Name of donor&quot;</span>:<span style="color: #4070a0">&quot;Hans-Georg Tillman&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Donor status&quot;</span>:<span style="color: #4070a0">&quot;individual&quot;</span>,
+                     <span style="color: #062873; font-weight: bold">&quot;Address of donor&quot;</span>:<span style="color: #4070a0">&quot;private&quot;</span>
+                  }
+               }
+            }
+            </pre></div>
+            </pre></div>
+            </pre></div>
+            
+                                </div>
+                                 </div>
+
+                    </div>
+                        </div>
+                     </div>
+                  </div>
+                  
+         </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+            <p>&#xa9; Ramin Tawab 2018</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/holder.min.js"></script>
+  </body>
