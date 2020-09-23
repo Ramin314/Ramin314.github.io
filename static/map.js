@@ -657,20 +657,6 @@
                     [18, 19, 20, 21, 22]
                 ]
             }, {
-                "type": "MultiPolygon",
-                "properties": {
-                    "name": "Argentina"
-                },
-                "id": "ARG",
-                "arcs": [
-                    [
-                        [23, 24]
-                    ],
-                    [
-                        [25, 26, 27, 28, 29, 30]
-                    ]
-                ]
-            }, {
                 "type": "Polygon",
                 "properties": {
                     "name": "Armenia"
@@ -849,33 +835,6 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "Belize"
-                },
-                "id": "BLZ",
-                "arcs": [
-                    [97, 98, 99]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Bolivia"
-                },
-                "id": "BOL",
-                "arcs": [
-                    [100, 101, 102, 103, -31]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Brazil"
-                },
-                "id": "BRA",
-                "arcs": [
-                    [-27, 104, -103, 105, 106, 107, 108, 109, 110, 111, 112]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Brunei"
                 },
                 "id": "BRN",
@@ -910,104 +869,6 @@
                     [121, 122, 123, 124, 125, 126, 127]
                 ]
             }, {
-                "type": "MultiPolygon",
-                "properties": {
-                    "name": "Canada"
-                },
-                "id": "CAN",
-                "arcs": [
-                    [
-                        [128]
-                    ],
-                    [
-                        [129]
-                    ],
-                    [
-                        [130]
-                    ],
-                    [
-                        [131]
-                    ],
-                    [
-                        [132]
-                    ],
-                    [
-                        [133]
-                    ],
-                    [
-                        [134]
-                    ],
-                    [
-                        [135]
-                    ],
-                    [
-                        [136]
-                    ],
-                    [
-                        [137]
-                    ],
-                    [
-                        [138, 139, 140, 141]
-                    ],
-                    [
-                        [142]
-                    ],
-                    [
-                        [143]
-                    ],
-                    [
-                        [144]
-                    ],
-                    [
-                        [145]
-                    ],
-                    [
-                        [146]
-                    ],
-                    [
-                        [147]
-                    ],
-                    [
-                        [148]
-                    ],
-                    [
-                        [149]
-                    ],
-                    [
-                        [150]
-                    ],
-                    [
-                        [151]
-                    ],
-                    [
-                        [152]
-                    ],
-                    [
-                        [153]
-                    ],
-                    [
-                        [154]
-                    ],
-                    [
-                        [155]
-                    ],
-                    [
-                        [156]
-                    ],
-                    [
-                        [157]
-                    ],
-                    [
-                        [158]
-                    ],
-                    [
-                        [159]
-                    ],
-                    [
-                        [160]
-                    ]
-                ]
-            }, {
                 "type": "Polygon",
                 "properties": {
                     "name": "Switzerland"
@@ -1015,20 +876,6 @@
                 "id": "CHE",
                 "arcs": [
                     [-51, 161, 162, 163]
-                ]
-            }, {
-                "type": "MultiPolygon",
-                "properties": {
-                    "name": "Chile"
-                },
-                "id": "CHL",
-                "arcs": [
-                    [
-                        [-24, 164]
-                    ],
-                    [
-                        [-30, 165, 166, -101]
-                    ]
                 ]
             }, {
                 "type": "MultiPolygon",
@@ -1079,33 +926,6 @@
                 "id": "COG",
                 "arcs": [
                     [-12, 203, 204, -196, -127, -202]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Colombia"
-                },
-                "id": "COL",
-                "arcs": [
-                    [205, 206, 207, 208, 209, -107, 210]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Costa Rica"
-                },
-                "id": "CRI",
-                "arcs": [
-                    [211, 212, 213, 214]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Cuba"
-                },
-                "id": "CUB",
-                "arcs": [
-                    [215]
                 ]
             }, {
                 "type": "Polygon",
@@ -1169,29 +989,11 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "Dominican Republic"
-                },
-                "id": "DOM",
-                "arcs": [
-                    [235, 236]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Algeria"
                 },
                 "id": "DZA",
                 "arcs": [
                     [237, 238, 239, 240, 241, 242, 243, 244]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Ecuador"
-                },
-                "id": "ECU",
-                "arcs": [
-                    [245, -206, 246]
                 ]
             }, {
                 "type": "Polygon",
@@ -1290,15 +1092,6 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "French Guiana"
-                },
-                "id": "GUF",
-                "arcs": [
-                    [282, 283, 284, 285, -111]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Gabon"
                 },
                 "id": "GAB",
@@ -1390,56 +1183,11 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "Greenland"
-                },
-                "id": "GRL",
-                "arcs": [
-                    [311]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Guatemala"
-                },
-                "id": "GTM",
-                "arcs": [
-                    [312, 313, -100, 314, 315, 316]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Guyana"
-                },
-                "id": "GUY",
-                "arcs": [
-                    [317, 318, -109, 319]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Honduras"
-                },
-                "id": "HND",
-                "arcs": [
-                    [320, 321, -316, 322, 323]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Croatia"
                 },
                 "id": "HRV",
                 "arcs": [
                     [324, -92, 325, 326, 327, 328]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Haiti"
-                },
-                "id": "HTI",
-                "arcs": [
-                    [-237, 329]
                 ]
             }, {
                 "type": "Polygon",
@@ -1777,15 +1525,6 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "Mexico"
-                },
-                "id": "MEX",
-                "arcs": [
-                    [435, -98, -314, 436, 437]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Macedonia"
                 },
                 "id": "MKD",
@@ -1908,15 +1647,6 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "Nicaragua"
-                },
-                "id": "NIC",
-                "arcs": [
-                    [471, -324, 472, -213]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Netherlands"
                 },
                 "id": "NLD",
@@ -1990,24 +1720,6 @@
                     [-178, -355, 486, -358, -5]
                 ]
             }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Panama"
-                },
-                "id": "PAN",
-                "arcs": [
-                    [487, -215, 488, -208]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Peru"
-                },
-                "id": "PER",
-                "arcs": [
-                    [-167, 489, -247, -211, -106, -102]
-                ]
-            }, {
                 "type": "MultiPolygon",
                 "properties": {
                     "name": "Philippines"
@@ -2068,15 +1780,6 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "Puerto Rico"
-                },
-                "id": "PRI",
-                "arcs": [
-                    [505]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "North Korea"
                 },
                 "id": "PRK",
@@ -2091,15 +1794,6 @@
                 "id": "PRT",
                 "arcs": [
                     [-259, 509]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Paraguay"
-                },
-                "id": "PRY",
-                "arcs": [
-                    [-104, -105, -26]
                 ]
             }, {
                 "type": "Polygon",
@@ -2255,15 +1949,6 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "El Salvador"
-                },
-                "id": "SLV",
-                "arcs": [
-                    [558, -317, -322]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Somaliland"
                 },
                 "id": "-99",
@@ -2287,15 +1972,6 @@
                 "id": "SRB",
                 "arcs": [
                     [-86, -439, -407, -446, -90, -325, -334, -516]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Suriname"
-                },
-                "id": "SUR",
-                "arcs": [
-                    [562, -285, 563, -283, -110, -319]
                 ]
             }, {
                 "type": "Polygon",
@@ -2467,29 +2143,11 @@
             }, {
                 "type": "Polygon",
                 "properties": {
-                    "name": "Uruguay"
-                },
-                "id": "URY",
-                "arcs": [
-                    [-113, 586, -28]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
                     "name": "Uzbekistan"
                 },
                 "id": "UZB",
                 "arcs": [
                     [-576, -388, -399, -574, -2]
-                ]
-            }, {
-                "type": "Polygon",
-                "properties": {
-                    "name": "Venezuela"
-                },
-                "id": "VEN",
-                "arcs": [
-                    [598, -320, -108, -210]
                 ]
             }, {
                 "type": "Polygon",
