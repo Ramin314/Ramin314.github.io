@@ -139,7 +139,7 @@
     var geoData = topojson.feature( data, data.objects[ this.options.scope ] ).features;
     if ( geoConfig.hideAntarctica ) {
       geoData = geoData.filter(function(feature) {
-        return !(feature.id in ["ATA", "RUS"]);
+        return !['ATA', 'RUS'].includes(feature.id);
       });
     }
 
