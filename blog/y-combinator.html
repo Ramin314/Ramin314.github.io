@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="#">
+    <title>Y Combinator | Ramin Tawab Résumé</title>
+    <link rel="shortcut icon" type="image/png" href="../files/favicon.ico"/>
+    <!-- I wrote this page with the help of the Bootstrap libraries -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link href="../css/album.css" rel="stylesheet">
+      <style>
+          .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; 
+          }
+      </style>
+    <script type="text/javascript"> 
+        function scroll(element){   
+            var ele = document.getElementById(element);   
+            window.scrollTo(ele.offsetLeft,ele.offsetTop); 
+        }
+    </script>
+  </head>
+
+  <body>
+    <nav>
+        <ul>
+            <li><a style="text-decoration: none;" href="../index.html">Home</a></li>
+            <li><a style="text-decoration: none;" href="../files/CV.pdf">CV</a></li>
+            <li><a href="../index.html#blog" style="text-decoration: none; cursor: pointer; color: #999;">Blog</a></li>
+            <li><a href="../index.html#portfolio" style="text-decoration: none;">Portfolio</a></li>
+        </ul>
+    </nav>
+    <main role="main" style="color: #848484; text-align:justify;">
+        <h1 style="margin-top:0.5em;margin-bottom:0.5em;font-size:2em;text-align:left;">Co-founding a Startup</h1>
+        <p>
+            Throughout the first half of 2019, I worked full time as the technical co-founder of a startup called BookB.
+            It was envisioned as a subscription based delivery service of physical books by partnering with libraries.
+            I wrote the web platform in Django and made use of several APIs such as Stripe and SendGrid.
+            The website was deployed using AWS Elastic Beanstalk with an AWS RDS PostgreSQL database.
+            I was also tasked with integrating the APIs of various London based Library catalogues. 
+            Below is an early demo of the platform. This demo was used in applications to both YC and Public.
+        </p>
+        <video src="../files/BookB/bookb-demo.mp4" controls style="width: 100%;"></video>
+        <p>
+            We were later invited to Silicon Valley by the startup accelerator giant known as Y Combinator.
+            Evidence of this can be found <a href="../files/BookB/y-combinator-letter.pdf">here</a>.
+            There, we were successful in getting a conditional offer into its Summer batch.
+            However, in the words of Michael Seibel, "plans fall through", and
+            due to falling behind in my studies, I had to part ways with the startup.
+        </p>
+        <p>
+            Following my departure, BookB was accepted into the Public startup. Details of this are available online.
+        </p>
+    </main>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a style="text-decoration: none;" href="#">Back to top</a>
+            <p>&#xa9; Ramin Tawab 2023</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/holder.min.js"></script>
+  </body>
